@@ -4,6 +4,27 @@ import { DatabaseService } from '../services/DatabaseService';
 const router = express.Router();
 const db = new DatabaseService();
 
+// Функция для безопасного парсинга initData
+function parseInitData(initData: string) {
+	if (!initData) {
+		throw new Error('Отсутствуют данные авторизации');
+	}
+	
+	try {
+		// Пробуем распарсить как JSON
+		return JSON.parse(decodeURIComponent(initData));
+	} catch (parseError) {
+		// Если не JSON, пробуем извлечь user_id из строки параметров
+		const urlParams = new URLSearchParams(initData);
+		const userParam = urlParams.get('user');
+		if (userParam) {
+			return JSON.parse(userParam);
+		} else {
+			throw new Error('Не удалось извлечь данные пользователя');
+		}
+	}
+}
+
 // Middleware для проверки данных Telegram
 function validateTelegramData(
 	req: express.Request,
@@ -27,7 +48,7 @@ function validateTelegramData(
 router.get('/user', validateTelegramData, async (req, res) => {
 	try {
 		const initData = req.headers['x-telegram-init-data'] as string;
-		const userData = JSON.parse(decodeURIComponent(initData));
+		const userData = parseInitData(initData);
 
 		if (!userData.user) {
 			return res.status(400).json({ error: 'Данные пользователя не найдены' });
@@ -71,7 +92,7 @@ router.get('/user', validateTelegramData, async (req, res) => {
 router.post('/data', validateTelegramData, async (req, res) => {
 	try {
 		const initData = req.headers['x-telegram-init-data'] as string;
-		const userData = JSON.parse(decodeURIComponent(initData));
+		const userData = parseInitData(initData);
 		const telegramId = userData.user.id;
 
 		// Получаем пользователя
@@ -113,7 +134,7 @@ router.post('/data', validateTelegramData, async (req, res) => {
 router.get('/stats', validateTelegramData, async (req, res) => {
 	try {
 		const initData = req.headers['x-telegram-init-data'] as string;
-		const userData = JSON.parse(decodeURIComponent(initData));
+		const userData = parseInitData(initData);
 		const telegramId = userData.user.id;
 
 		const user = await db.getUserByTelegramId(telegramId);

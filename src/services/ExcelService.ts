@@ -48,12 +48,19 @@ export class ExcelService {
 
 		// Проверяем наличие всех необходимых столбцов
 		const availableColumns = Object.keys(jsonData[0] || {});
-		const missingColumns = ExcelService.DEFAULT_COLUMNS.filter(
-			col => !availableColumns.includes(col)
-		);
-
-		if (missingColumns.length > 0) {
-			throw new Error('Видимо вы прикрепили не Финансовый отчет');
+		
+		// Проверяем наличие хотя бы нескольких ключевых столбцов
+		const keyColumns = [
+			'К перечислению Продавцу за реализованный Товар',
+			'Цена розничная',
+			'Кол-во',
+			'Дата продажи'
+		];
+		
+		const foundKeyColumns = keyColumns.filter(col => availableColumns.includes(col));
+		
+		if (foundKeyColumns.length < 2) {
+			throw new Error('Файл не содержит необходимых столбцов для финансового отчета. Убедитесь, что это отчет от Wildberries.');
 		}
 
 		const columnsToKeep = config?.keep || ExcelService.DEFAULT_COLUMNS;
