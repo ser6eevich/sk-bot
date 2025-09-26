@@ -13,8 +13,14 @@ import imageAnalysisRoutes from './routes/imageAnalysis';
 import profileRoutes from './routes/profile';
 import telegramRoutes from './routes/telegram';
 
-// Initialize bot
-const bot = new Bot(process.env.BOT_TOKEN || '');
+// Initialize bot (только если есть токен)
+let bot: Bot | null = null;
+if (process.env.BOT_TOKEN) {
+	bot = new Bot(process.env.BOT_TOKEN);
+	console.log('✅ Telegram бот инициализирован');
+} else {
+	console.log('⚠️ BOT_TOKEN не найден, бот не запущен');
+}
 
 // Initialize express app for web interface
 const app = express();
@@ -84,12 +90,13 @@ app.use(
 );
 
 // Error handler
-bot.catch(err => {
-	console.error('Error in bot:', err);
-});
+if (bot) {
+	bot.catch(err => {
+		console.error('Error in bot:', err);
+	});
 
-// Bot command handlers
-bot.command('start', async ctx => {
+	// Bot command handlers
+	bot.command('start', async ctx => {
 	await ctx.reply('Добро пожаловать в SellKit - помощник для селлеров на WB!', {
 		reply_markup: {
 			keyboard: [
@@ -109,10 +116,10 @@ bot.command('start', async ctx => {
 			resize_keyboard: true,
 		},
 	});
-});
+	});
 
-// Message handlers
-bot.on('message:text', async ctx => {
+	// Message handlers
+	bot.on('message:text', async ctx => {
 	const text = ctx.message.text;
 
 	switch (text) {
@@ -136,10 +143,13 @@ bot.on('message:text', async ctx => {
 				'Пожалуйста, используйте кнопки меню для работы с ботом.'
 			);
 	}
-});
+	});
+}
 
-// Start bot
-bot.start();
+// Start bot (только если инициализирован)
+if (bot) {
+	bot.start();
+}
 
 // Функция для запуска HTTPS сервера
 function startHttpsServer() {
