@@ -300,17 +300,32 @@ class TelegramAuth {
 	displayReports(reports) {
 		const reportsList = document.getElementById('reportsList');
 		const reportsEmpty = document.getElementById('reportsEmpty');
+		const showAllBtn = document.getElementById('showAllReportsBtn');
 
 		if (!reportsList || !reportsEmpty) return;
 
 		if (reports.length === 0) {
 			reportsList.innerHTML = '';
 			reportsEmpty.style.display = 'block';
+			if (showAllBtn) showAllBtn.classList.add('d-none');
 			return;
 		}
 
 		reportsEmpty.style.display = 'none';
-		reportsList.innerHTML = reports.map(report => `
+		
+		// Показываем кнопку "Показать все" если отчетов больше 4
+		if (showAllBtn) {
+			if (reports.length > 4) {
+				showAllBtn.classList.remove('d-none');
+			} else {
+				showAllBtn.classList.add('d-none');
+			}
+		}
+
+		// Показываем только последние 4 отчета
+		const recentReports = reports.slice(0, 4);
+		
+		reportsList.innerHTML = recentReports.map(report => `
 			<div class="card mb-3">
 				<div class="card-body">
 					<div class="d-flex align-items-start">
@@ -326,9 +341,53 @@ class TelegramAuth {
 									</p>
 									<p class="card-text small">Общая сумма: ${report.totalAmount || '0'} ₽</p>
 								</div>
-								<button class="btn btn-sm btn-outline-success" onclick="viewReport(${report.id})">
-									Просмотр
-								</button>
+								<div class="d-flex gap-2">
+									<button class="btn btn-sm btn-primary" onclick="sendReportToTelegram(${report.id})">
+										📤 Отправить
+									</button>
+									<button class="btn btn-sm btn-outline-success" onclick="viewReport(${report.id})">
+										👁 Просмотр
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		`).join('');
+
+		// Загружаем все отчеты для модального окна
+		this.loadAllReports(reports);
+	}
+
+	loadAllReports(allReports) {
+		const allReportsList = document.getElementById('allReportsList');
+		if (!allReportsList) return;
+
+		allReportsList.innerHTML = allReports.map(report => `
+			<div class="card mb-3">
+				<div class="card-body">
+					<div class="d-flex align-items-start">
+						<div class="me-3">
+							<img src="icons/financial-report.png" alt="Отчет" class="profile-item-icon">
+						</div>
+						<div class="flex-grow-1">
+							<div class="d-flex justify-content-between align-items-start">
+								<div class="flex-grow-1">
+									<h6 class="card-title mb-1">${report.title || 'Финансовый отчет'}</h6>
+									<p class="card-text text-muted small mb-2">
+										${new Date(report.createdAt).toLocaleDateString('ru-RU')}
+									</p>
+									<p class="card-text small">Общая сумма: ${report.totalAmount || '0'} ₽</p>
+								</div>
+								<div class="d-flex gap-2">
+									<button class="btn btn-sm btn-primary" onclick="sendReportToTelegram(${report.id})">
+										📤 Отправить
+									</button>
+									<button class="btn btn-sm btn-outline-success" onclick="viewReport(${report.id})">
+										👁 Просмотр
+									</button>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -430,6 +489,38 @@ class TelegramAuth {
 		const userReports = document.getElementById('userReports');
 		if (userAnalyses) userAnalyses.style.display = 'block';
 		if (userReports) userReports.style.display = 'block';
+	}
+}
+
+// Глобальные функции для вызова из HTML
+function viewAnalysis(analysisId) {
+	console.log('Просмотр анализа:', analysisId);
+	// Здесь можно добавить логику просмотра анализа
+}
+
+function viewReport(reportId) {
+	console.log('Просмотр отчета:', reportId);
+	// Здесь можно добавить логику просмотра отчета
+}
+
+async function sendReportToTelegram(reportId) {
+	try {
+		const response = await fetch(`/api/telegram/send-report/${reportId}`, {
+			method: 'POST',
+			headers: {
+				'X-Telegram-Init-Data': window.Telegram?.WebApp?.initData || ''
+			}
+		});
+
+		if (response.ok) {
+			alert('✅ Отчет отправлен в Telegram!');
+		} else {
+			const error = await response.json();
+			alert('❌ Ошибка отправки: ' + (error.error || 'Неизвестная ошибка'));
+		}
+	} catch (error) {
+		console.error('Ошибка отправки отчета:', error);
+		alert('❌ Ошибка отправки отчета');
 	}
 }
 

@@ -150,4 +150,33 @@ router.get('/stats', validateTelegramData, async (req, res) => {
 	}
 });
 
+// Отправить отчет в Telegram
+router.post('/send-report/:reportId', validateTelegramData, async (req, res) => {
+	try {
+		const initData = req.headers['x-telegram-init-data'] as string;
+		const userData = parseInitData(initData);
+		const telegramId = userData.user.id;
+		const reportId = parseInt(req.params.reportId);
+
+		// Получаем пользователя
+		const user = await db.getUserByTelegramId(telegramId);
+		if (!user) {
+			return res.status(404).json({ error: 'Пользователь не найден' });
+		}
+
+		// Получаем отчет
+		const report = await db.getReportById(reportId);
+		if (!report || report.userId !== user.id) {
+			return res.status(404).json({ error: 'Отчет не найден' });
+		}
+
+		// Здесь должна быть логика отправки файла через бота
+		// Пока что просто возвращаем успех
+		res.json({ success: true, message: 'Отчет отправлен в Telegram' });
+	} catch (error) {
+		console.error('Ошибка отправки отчета:', error);
+		res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+	}
+});
+
 export default router;

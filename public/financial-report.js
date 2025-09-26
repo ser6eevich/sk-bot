@@ -130,18 +130,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		const formData = new FormData();
 		formData.append('report', fileInput.files[0]);
 
-		// Добавляем данные пользователя для отправки через бота
+		// Добавляем данные пользователя для автоматической отправки через бота
 		if (window.Telegram && window.Telegram.WebApp) {
 			const user = window.Telegram.WebApp.initDataUnsafe.user;
 			if (user) {
 				formData.append('telegramId', user.id.toString());
+				formData.append('sendToBot', 'true');
+				formData.append('saveReport', 'true');
 			}
-		}
-
-		// Проверяем, нужно ли отправить через бота
-		const sendToBot = document.getElementById('sendToBot').checked;
-		if (sendToBot) {
-			formData.append('sendToBot', 'true');
 		}
 
 		if (document.getElementById('manualProcess').checked) {
@@ -178,35 +174,13 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (contentType && contentType.includes('application/json')) {
 				const result = await response.json();
 				if (result.sentViaBot) {
-					alert('✅ Файл отправлен в Telegram! Проверьте переписку с ботом.');
+					alert('✅ Отчет обработан и отправлен в Telegram! Проверьте переписку с ботом. Отчет также сохранен в вашем профиле.');
 					return;
 				}
 			}
 
-			// Проверяем, что ответ - это Excel файл
-			if (!contentType || !contentType.includes('spreadsheet')) {
-				throw new Error('Ошибка при формировании файла');
-			}
-
-			// Get the blob from response
-			const blob = await response.blob();
-
-			// Create download link
-			const downloadUrl = window.URL.createObjectURL(blob);
-			const link = document.createElement('a');
-			link.href = downloadUrl;
-			link.download = 'processed_report.xlsx';
-
-			// Trigger download
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link);
-
-			// Cleanup
-			window.URL.revokeObjectURL(downloadUrl);
-
-			// Show success message
-			alert('Ваш файл скачивается');
+			// Если не отправлен через бота, показываем ошибку
+			alert('❌ Ошибка: не удалось отправить отчет в Telegram. Убедитесь, что вы открыли приложение через бота.');
 		} catch (error) {
 			console.error('Error processing report:', error);
 			showError(error.message);
