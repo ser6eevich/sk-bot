@@ -25,7 +25,7 @@
 
 ```bash
 # Клонирование репозитория
-git clone https://github.com/YOUR_USERNAME/sk-bot.git
+git clone https://github.com/ser6eevich/sk-bot.git
 cd sk-bot
 
 # Установка зависимостей
@@ -144,7 +144,7 @@ npm start
 
 При возникновении проблем:
 
-1. Проверьте [Issues](https://github.com/YOUR_USERNAME/sk-bot/issues)
+1. Проверьте [Issues](https://github.com/ser6eevich/sk-bot/issues)
 2. Создайте новый Issue с описанием проблемы
 3. Приложите логи и скриншоты
 
