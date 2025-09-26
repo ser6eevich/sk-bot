@@ -666,6 +666,19 @@ body {
 	margin-bottom: 0.75rem;
 }
 
+/* Стили для иконок инструментов */
+.tool-icon-img {
+	width: 80px;
+	height: 80px;
+	object-fit: contain;
+	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+	transition: transform 0.3s ease;
+}
+
+.tool-icon-img:hover {
+	transform: scale(1.05);
+}
+
 /* Стили для главного логотипа */
 .logo-main {
 	filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
@@ -817,5 +830,11 @@ body {
 	.logo-main {
 		width: 80px !important;
 		height: 80px !important;
+	}
+
+	/* Иконки инструментов на мобильных */
+	.tool-icon-img {
+		width: 60px;
+		height: 60px;
 	}
 }
