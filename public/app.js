@@ -11,14 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
 		if (userData) {
 			console.log('👤 Пользователь:', userData);
 
-		// Показываем приветствие
-		const userGreeting = document.getElementById('userGreeting');
-		const userGreetingName = document.getElementById('userGreetingName');
-		if (userGreeting && userGreetingName) {
-			userGreetingName.textContent = userData.firstName || 'Пользователь';
-			userGreeting.style.display = 'block';
-		}
-
 		// Показываем статистику пользователя
 		showUserStats();
 		}

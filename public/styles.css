@@ -642,6 +642,62 @@ body {
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* Стили для карточек инструментов */
+.tool-card-link {
+	text-decoration: none;
+	color: inherit;
+	display: block;
+	height: 100%;
+}
+
+.tool-card {
+	background: #000000;
+	border-radius: 16px;
+	overflow: hidden;
+	height: 100%;
+	transition: all 0.3s ease;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+	border: 1px solid rgba(113, 216, 225, 0.2);
+}
+
+.tool-card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+	border-color: rgba(113, 216, 225, 0.4);
+}
+
+.tool-card-header {
+	background: linear-gradient(135deg, #71d8e1 0%, #aedde1 100%);
+	padding: 20px;
+	text-align: center;
+}
+
+.tool-icon {
+	font-size: 32px;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tool-card-content {
+	padding: 24px;
+	color: #ffffff;
+}
+
+.tool-title {
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 12px;
+	text-align: center;
+	letter-spacing: 0.5px;
+}
+
+.tool-description {
+	font-size: 14px;
+	line-height: 1.5;
+	text-align: center;
+	color: rgba(255, 255, 255, 0.8);
+	margin: 0;
+}
+
 /* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
 	.bottom-menu {
