@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Профиль - SellKit</title>
+		<script src="https://telegram.org/js/telegram-web-app.js"></script>
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+		/>
+		<link
+			href="styles.css"
+			rel="stylesheet"
+		/>
+	</head>
+	<body>
+		<div class="container mt-4">
+			<div class="d-flex justify-content-between align-items-center mb-5">
+				<div>
+					<h1 class="display-5 fw-bold mb-2">Профиль</h1>
+					<p class="text-muted mb-0">Настройки и информация о пользователе</p>
+				</div>
+			</div>
+
+			<div class="row justify-content-center">
+				<div class="col-md-8 col-lg-6">
+					<!-- Форма авторизации (показывается если не авторизован) -->
+					<div
+						id="authPrompt"
+						class="card mb-4"
+						style="display: none"
+					>
+						<div class="card-body text-center">
+							<div class="mb-4">
+								<div class="display-6">🔐</div>
+							</div>
+							<h4 class="card-title mb-3">Авторизация</h4>
+							<p class="text-muted mb-4">
+								Для использования всех возможностей приложения необходимо
+								авторизоваться через Telegram
+							</p>
+							<button
+								class="btn btn-primary"
+								onclick="window.telegramAuth.showTestMode()"
+							>
+								Войти через Telegram
+							</button>
+						</div>
+					</div>
+
+					<!-- Информация о пользователе (показывается если авторизован) -->
+					<div
+						id="authorizedContent"
+						class="card mb-4"
+						style="display: none"
+					>
+						<div class="card-body text-center">
+							<div class="mb-4">
+								<img
+									id="userAvatar"
+									src=""
+									alt="Аватар"
+									class="rounded-circle"
+									style="
+										width: 80px;
+										height: 80px;
+										object-fit: cover;
+										display: none;
+									"
+								/>
+								<div
+									id="defaultAvatar"
+									class="display-6"
+								>
+									👤
+								</div>
+							</div>
+							<h4
+								id="userName"
+								class="card-title mb-2"
+							>
+								Пользователь
+							</h4>
+							<p
+								id="userUsername"
+								class="text-muted mb-1"
+							>
+								@username
+							</p>
+							<small
+								id="userId"
+								class="text-muted"
+								>ID: 123456789</small
+							>
+						</div>
+					</div>
+
+					<!-- Статистика -->
+					<div
+						id="statsCard"
+						class="card mb-4"
+					>
+						<div class="card-body">
+							<h5 class="card-title mb-3">Статистика</h5>
+							<div class="row g-3">
+								<div class="col-6">
+									<div class="text-center">
+										<div
+											id="analysesCount"
+											class="display-6 text-primary"
+										>
+											0
+										</div>
+										<small class="text-muted">Проведено анализов</small>
+									</div>
+								</div>
+								<div class="col-6">
+									<div class="text-center">
+										<div
+											id="reportsCount"
+											class="display-6 text-primary"
+										>
+											0
+										</div>
+										<small class="text-muted">Сохранено отчетов</small>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Мои анализы -->
+					<div
+						id="userAnalyses"
+						class="card mb-4"
+					>
+						<div class="card-body">
+							<div
+								class="d-flex justify-content-between align-items-center mb-3"
+							>
+								<h5 class="card-title mb-0">Мои анализы</h5>
+								<button
+									id="showAllAnalyses"
+									class="btn btn-sm btn-outline-primary"
+									onclick="showAllAnalyses()"
+								>
+									Все анализы
+								</button>
+							</div>
+							<div id="analysesList">
+								<!-- Анализы будут загружены динамически -->
+							</div>
+							<div
+								id="analysesEmpty"
+								class="text-center py-4"
+							>
+								<div class="display-6 text-muted mb-2">📊</div>
+								<p class="text-muted mb-0">Пока нет проведенных анализов</p>
+								<small class="text-muted"
+									>Здесь будут отображаться все ваши анализы товаров</small
+								>
+							</div>
+						</div>
+					</div>
+
+					<!-- Мои отчеты -->
+					<div
+						id="userReports"
+						class="card mb-4"
+					>
+						<div class="card-body">
+							<div
+								class="d-flex justify-content-between align-items-center mb-3"
+							>
+								<h5 class="card-title mb-0">Мои отчеты</h5>
+								<button
+									id="showAllReports"
+									class="btn btn-sm btn-outline-primary"
+									onclick="showAllReports()"
+								>
+									Все отчеты
+								</button>
+							</div>
+							<div id="reportsList">
+								<!-- Отчеты будут загружены динамически -->
+							</div>
+							<div
+								id="reportsEmpty"
+								class="text-center py-4"
+							>
+								<div class="display-6 text-muted mb-2">📋</div>
+								<p class="text-muted mb-0">Пока нет сохраненных отчетов</p>
+								<small class="text-muted"
+									>Здесь будут отображаться все ваши отчеты</small
+								>
+							</div>
+							<div class="d-grid gap-2 mt-3">
+								<button
+									class="btn btn-outline-danger"
+									onclick="window.telegramAuth.logout()"
+								>
+									Выйти из аккаунта
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Модальное окно для просмотра анализа -->
+		<div
+			class="modal fade"
+			id="analysisModal"
+			tabindex="-1"
+			aria-labelledby="analysisModalLabel"
+			aria-hidden="true"
+		>
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5
+							class="modal-title"
+							id="analysisModalLabel"
+						>
+							Анализ товара
+						</h5>
+						<button
+							type="button"
+							class="btn-close"
+							data-bs-dismiss="modal"
+							aria-label="Close"
+						></button>
+					</div>
+					<div class="modal-body">
+						<div id="analysisContent">
+							<!-- Содержимое анализа будет загружено динамически -->
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button
+							type="button"
+							class="btn btn-secondary"
+							data-bs-dismiss="modal"
+						>
+							Закрыть
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Модальное окно для просмотра отчета -->
+		<div
+			class="modal fade"
+			id="reportModal"
+			tabindex="-1"
+			aria-labelledby="reportModalLabel"
+			aria-hidden="true"
+		>
+			<div class="modal-dialog modal-xl">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5
+							class="modal-title"
+							id="reportModalLabel"
+						>
+							Финансовый отчет
+						</h5>
+						<button
+							type="button"
+							class="btn-close"
+							data-bs-dismiss="modal"
+							aria-label="Close"
+						></button>
+					</div>
+					<div class="modal-body">
+						<div id="reportContent">
+							<!-- Содержимое отчета будет загружено динамически -->
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button
+							type="button"
+							class="btn btn-secondary"
+							data-bs-dismiss="modal"
+						>
+							Закрыть
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Нижнее меню -->
+		<div class="bottom-menu">
+			<a
+				href="/"
+				class="bottom-menu-item"
+				data-page="home"
+			>
+				<div class="bottom-menu-icon">🏠</div>
+				<div class="bottom-menu-text">Главная</div>
+			</a>
+			<a
+				href="/tools.html"
+				class="bottom-menu-item"
+				data-page="tools"
+			>
+				<div class="bottom-menu-icon">🛠️</div>
+				<div class="bottom-menu-text">Инструменты</div>
+			</a>
+			<a
+				href="/packaging.html"
+				class="bottom-menu-item"
+				data-page="packaging"
+			>
+				<div class="bottom-menu-icon">📦</div>
+				<div class="bottom-menu-text">Упаковка</div>
+			</a>
+			<a
+				href="/profile.html"
+				class="bottom-menu-item"
+				data-page="profile"
+			>
+				<div class="bottom-menu-icon">👤</div>
+				<div class="bottom-menu-text">Профиль</div>
+			</a>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="telegram-auth.js"></script>
+		<script src="bottom-menu.js"></script>
+		<script src="app.js"></script>
+		<script src="profile.js"></script>
+	</body>
+</html>

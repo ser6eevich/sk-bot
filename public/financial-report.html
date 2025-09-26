@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Финансовый отчет - SellKit</title>
+		<script src="https://telegram.org/js/telegram-web-app.js"></script>
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+		/>
+		<link
+			href="styles.css"
+			rel="stylesheet"
+		/>
+	</head>
+	<body>
+		<div class="container mt-4">
+			<div class="d-flex justify-content-between align-items-center mb-5">
+				<div>
+					<h1 class="display-5 fw-bold mb-2">Финансовый отчет</h1>
+					<p class="text-muted mb-0">Анализ и обработка отчетов Wildberries</p>
+				</div>
+				<a
+					href="/"
+					class="btn btn-secondary"
+				>
+					← Назад
+				</a>
+			</div>
+
+			<div
+				id="errorAlert"
+				class="alert alert-danger mt-4 d-none"
+				role="alert"
+			></div>
+
+			<div class="card mt-4">
+				<div class="card-body">
+					<h5 class="card-title">Загрузка отчета</h5>
+					<form id="reportForm">
+						<div class="mb-3">
+							<label
+								for="reportFile"
+								class="form-label"
+								>Выберите Excel файл</label
+							>
+							<input
+								type="file"
+								class="form-control"
+								id="reportFile"
+								accept=".xlsx,.xls"
+								required
+							/>
+						</div>
+
+						<div class="mb-3">
+							<div class="form-check">
+								<input
+									class="form-check-input"
+									type="radio"
+									name="processType"
+									id="autoProcess"
+									value="auto"
+									checked
+								/>
+								<label
+									class="form-check-label"
+									for="autoProcess"
+								>
+									Автоматическая обработка
+								</label>
+							</div>
+							<div class="form-check">
+								<input
+									class="form-check-input"
+									type="radio"
+									name="processType"
+									id="manualProcess"
+									value="manual"
+								/>
+								<label
+									class="form-check-label"
+									for="manualProcess"
+								>
+									Ручная настройка
+								</label>
+							</div>
+						</div>
+
+						<div
+							id="manualSettings"
+							class="d-none"
+						>
+							<div class="mb-3">
+								<label class="form-label"
+									>Выберите столбцы для сохранения</label
+								>
+								<div
+									id="columnsToKeep"
+									class="border p-3 rounded"
+								></div>
+							</div>
+
+							<div class="mb-3">
+								<label class="form-label"
+									>Выберите столбцы для суммирования</label
+								>
+								<div
+									id="columnsToSum"
+									class="border p-3 rounded"
+								></div>
+							</div>
+						</div>
+
+						<button
+							type="submit"
+							class="btn btn-primary"
+						>
+							Обработать отчет
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-- Нижнее меню -->
+		<div class="bottom-menu">
+			<a
+				href="/"
+				class="bottom-menu-item"
+				data-page="home"
+			>
+				<div class="bottom-menu-icon">🏠</div>
+				<div class="bottom-menu-text">Главная</div>
+			</a>
+			<a
+				href="/tools.html"
+				class="bottom-menu-item"
+				data-page="tools"
+			>
+				<div class="bottom-menu-icon">🛠️</div>
+				<div class="bottom-menu-text">Инструменты</div>
+			</a>
+			<a
+				href="/packaging.html"
+				class="bottom-menu-item"
+				data-page="packaging"
+			>
+				<div class="bottom-menu-icon">📦</div>
+				<div class="bottom-menu-text">Упаковка</div>
+			</a>
+			<a
+				href="/profile.html"
+				class="bottom-menu-item"
+				data-page="profile"
+			>
+				<div class="bottom-menu-icon">👤</div>
+				<div class="bottom-menu-text">Профиль</div>
+			</a>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+		<script src="telegram-auth.js"></script>
+		<script src="bottom-menu.js"></script>
+		<script src="financial-report.js"></script>
+	</body>
+</html>

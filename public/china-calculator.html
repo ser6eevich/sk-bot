@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Калькулятор заказа из Китая - SellKit</title>
+		<script src="https://telegram.org/js/telegram-web-app.js"></script>
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+		/>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+		<link
+			href="styles.css"
+			rel="stylesheet"
+		/>
+	</head>
+	<body>
+		<div class="container mt-4">
+			<div class="d-flex justify-content-between align-items-center mb-5">
+				<div>
+					<h1 class="display-5 fw-bold mb-2">Калькулятор заказа</h1>
+					<p class="text-muted mb-0">Точный расчет стоимости заказов из Китая</p>
+				</div>
+				<a href="/" class="btn btn-secondary">
+					← Назад
+				</a>
+			</div>
+
+
+			<div id="errorAlert" class="alert alert-danger mt-4 d-none" role="alert"></div>
+			
+
+			<div class="row justify-content-center">
+				<div class="col-md-8 col-lg-6">
+					<div class="card mt-4">
+						<div class="card-body">
+							<form id="calculatorForm">
+
+						<div class="mb-3">
+							<label
+								for="priceYuan"
+								class="form-label"
+								>Стоимость единицы товара (¥)</label
+							>
+							<input
+								type="number"
+								class="form-control"
+								id="priceYuan"
+								step="0.01"
+								required
+							/>
+						</div>
+
+						<div class="mb-3">
+							<label
+								for="weight"
+								class="form-label"
+								>Вес единицы товара (г)</label
+							>
+							<input
+								type="number"
+								class="form-control"
+								id="weight"
+								step="0.001"
+								required
+							/>
+						</div>
+
+						<div class="mb-3">
+							<label
+								for="quantity"
+								class="form-label"
+								>Количество единиц</label
+							>
+							<input
+								type="number"
+								class="form-control"
+								id="quantity"
+								min="1"
+								required
+							/>
+						</div>
+
+						<div class="mb-3">
+							<label
+								for="shippingPrice"
+								class="form-label"
+								>Стоимость доставки за кг ($)</label
+							>
+							<input
+								type="number"
+								class="form-control"
+								id="shippingPrice"
+								step="0.01"
+								required
+							/>
+						</div>
+
+						<div class="mb-3">
+							<label
+								for="targetPrice"
+								class="form-label"
+								>Планируемая цена продажи (₽, необязательно)</label
+							>
+							<input
+								type="number"
+								class="form-control"
+								id="targetPrice"
+								step="1"
+							/>
+						</div>
+
+						<div class="mb-3">
+							<label
+								for="wbCommissionPercent"
+								class="form-label"
+								>Процент комиссии WB (%)</label
+							>
+							<input
+								type="number"
+								class="form-control"
+								id="wbCommissionPercent"
+								step="0.1"
+								min="0"
+								max="100"
+								value="20"
+								required
+							/>
+							<div class="form-text">
+								Обычно 20%, но может варьироваться в зависимости от категории
+							</div>
+						</div>
+
+						<div class="mb-3">
+							<label
+								for="logisticsCostRub"
+								class="form-label"
+								>Логистика за единицу (₽)</label
+							>
+							<input
+								type="number"
+								class="form-control"
+								id="logisticsCostRub"
+								step="1"
+								min="0"
+								value="60"
+								required
+							/>
+							<div class="form-text">
+								Стоимость логистики WB за единицу товара
+							</div>
+						</div>
+
+						<div class="mb-3">
+							<label for="productImage" class="form-label">Скриншот товара (опционально)</label>
+							<input
+								type="file"
+								class="form-control"
+								id="productImage"
+								accept="image/*"
+							/>
+							<div class="form-text">
+								Загрузите скриншот товара для ИИ-анализа
+							</div>
+						</div>
+
+						<!-- Превью изображения -->
+						<div id="imagePreview" class="mb-3" style="display: none;">
+							<img id="previewImg" src="" alt="Превью изображения" class="img-fluid rounded" style="max-height: 200px;">
+						</div>
+
+						<!-- Модальное окно прогресса анализа -->
+						<div class="modal fade" id="analysisProgressModal" tabindex="-1" aria-labelledby="analysisProgressModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+							<div class="modal-dialog modal-dialog-centered">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h5 class="modal-title" id="analysisProgressModalLabel">Анализ товара</h5>
+									</div>
+									<div class="modal-body text-center">
+										<div class="spinner-border text-primary mb-3" role="status">
+											<span class="visually-hidden">Загрузка...</span>
+										</div>
+										<h6 id="progressTitle">Инициализация анализа...</h6>
+										<p id="progressDescription" class="text-muted">Пожалуйста, подождите</p>
+										<div class="progress mb-3">
+											<div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+										</div>
+										<small id="progressStep" class="text-muted">Подготовка к анализу...</small>
+									</div>
+								</div>
+							</div>
+						</div>
+
+							<button
+								type="submit"
+								class="btn btn-primary btn-lg"
+								id="calculateBtn"
+							>
+								Рассчитать стоимость
+							</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row justify-content-center">
+				<div class="col-md-10 col-lg-8">
+					<div
+						id="results"
+						class="mt-4 d-none"
+					>
+						<div class="card mb-4">
+							<div class="card-body">
+								<h5 class="card-title">Результаты расчета</h5>
+						<div class="row">
+							<div class="col-md-6">
+								<h6>Общая стоимость:</h6>
+								<ul class="list-unstyled">
+									<li>
+										Стоимость товара: <span id="totalProductCost">-</span> ¥
+									</li>
+									<li>
+										Стоимость доставки: <span id="totalShippingCost">-</span> $
+									</li>
+									<li>Итого в рублях: <span id="totalCostRub">-</span> ₽</li>
+								</ul>
+							</div>
+							<div class="col-md-6">
+								<h6>За единицу товара:</h6>
+								<ul class="list-unstyled">
+									<li>Себестоимость: <span id="costPerUnit">-</span> ₽</li>
+									<li>Доставка: <span id="shippingPerUnit">-</span> ₽</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">Расчет прибыли</h5>
+						<div class="row">
+							<div class="col-md-6">
+								<h6>За единицу товара:</h6>
+								<ul class="list-unstyled">
+									<li>Цена продажи: <span id="sellingPrice">-</span> ₽</li>
+									<li>Комиссия ВБ (<span id="wbCommissionPercent">20</span>%): <span id="wbCommission">-</span> ₽</li>
+									<li>Логистика: <span id="logisticsCost">-</span> ₽</li>
+									<li><strong>Чистая прибыль: <span id="netProfitPerUnit">-</span> ₽</strong></li>
+								</ul>
+							</div>
+							<div class="col-md-6">
+								<h6>Общая прибыль:</h6>
+								<ul class="list-unstyled">
+									<li><strong>Общая чистая прибыль: <span id="totalNetProfit">-</span> ₽</strong></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Модальное окно прогресса анализа -->
+				<div class="modal fade" id="analysisProgressModal" tabindex="-1" aria-labelledby="analysisProgressModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+					<div class="modal-dialog modal-dialog-centered">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="analysisProgressModalLabel">Анализ товара</h5>
+							</div>
+							<div class="modal-body text-center">
+								<div class="spinner-border text-primary mb-3" role="status">
+									<span class="visually-hidden">Загрузка...</span>
+								</div>
+								<h6 id="progressTitle">Инициализация анализа...</h6>
+								<p id="progressDescription" class="text-muted">Пожалуйста, подождите</p>
+								<div class="progress mb-3">
+									<div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+								</div>
+								<small id="progressStep" class="text-muted">Подготовка к анализу...</small>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Результаты ИИ-анализа -->
+				<div id="aiAnalysisSection" class="card mt-4" style="display: none;">
+					<div class="card-body">
+						<h4 class="card-title mb-4">ИИ-анализ товара</h4>
+						
+						<div id="aiAnalysisContent">
+							<!-- Здесь будут отображаться результаты анализа -->
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		
+		<!-- Нижнее меню -->
+		<div class="bottom-menu">
+			<a href="/" class="bottom-menu-item" data-page="home">
+				<div class="bottom-menu-icon">🏠</div>
+				<div class="bottom-menu-text">Главная</div>
+			</a>
+			<a href="/tools.html" class="bottom-menu-item" data-page="tools">
+				<div class="bottom-menu-icon">🛠️</div>
+				<div class="bottom-menu-text">Инструменты</div>
+			</a>
+			<a href="/packaging.html" class="bottom-menu-item" data-page="packaging">
+				<div class="bottom-menu-icon">📦</div>
+				<div class="bottom-menu-text">Упаковка</div>
+			</a>
+			<a href="/profile.html" class="bottom-menu-item" data-page="profile">
+				<div class="bottom-menu-icon">👤</div>
+				<div class="bottom-menu-text">Профиль</div>
+			</a>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="telegram-auth.js"></script>
+		<script src="bottom-menu.js"></script>
+		<script src="china-calculator.js"></script>
+	</body>
+</html>

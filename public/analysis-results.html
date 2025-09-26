@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Результаты анализа товара</title>
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+		/>
+		<link
+			rel="stylesheet"
+			href="styles.css"
+		/>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="https://telegram.org/js/telegram-web-app.js"></script>
+	</head>
+	<body>
+		<div class="container-fluid min-vh-100 d-flex flex-column">
+			<!-- Заголовок -->
+			<div class="row">
+				<div class="col-12">
+					<div class="text-center py-4">
+						<h1 class="display-6 fw-bold mb-0">Результаты анализа товара</h1>
+						<p class="text-muted mt-2">
+							Детальный анализ и рекомендации по продаже
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Основной контент -->
+			<div class="row flex-grow-1">
+				<div class="col-12">
+					<div class="container">
+						<!-- Фото товара -->
+						<div class="row mb-4">
+							<div class="col-12">
+								<div class="card">
+									<div class="card-body text-center">
+										<h5 class="card-title mb-3">Фото товара</h5>
+										<img
+											id="productImage"
+											src=""
+											alt="Фото товара"
+											class="img-fluid rounded"
+											style="max-height: 300px"
+										/>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Основная информация -->
+						<div class="row mb-4">
+							<div class="col-md-6 mb-3">
+								<div class="card h-100">
+									<div class="card-body">
+										<h5 class="card-title">Описание товара</h5>
+										<p
+											id="productDescription"
+											class="card-text"
+										></p>
+
+										<h6 class="mt-4">Категория</h6>
+										<span
+											id="productCategory"
+											class="badge bg-primary fs-6"
+										></span>
+									</div>
+								</div>
+							</div>
+
+							<div class="col-md-6 mb-3">
+								<div class="card h-100">
+									<div class="card-body">
+										<h5 class="card-title">Ценовые рекомендации</h5>
+
+										<div class="mb-3">
+											<h6>Рекомендуемая цена</h6>
+											<div
+												class="h4 text-success"
+												id="recommendedPrice"
+											></div>
+										</div>
+
+										<div class="mb-3">
+											<h6>Диапазон цен</h6>
+											<div
+												class="text-muted"
+												id="priceRange"
+											></div>
+										</div>
+
+										<div class="mb-3">
+											<h6>Уровень конкуренции</h6>
+											<div class="progress mb-2">
+												<div
+													id="competitionBar"
+													class="progress-bar"
+													role="progressbar"
+													style="width: 0%"
+												></div>
+											</div>
+											<small
+												id="competitionText"
+												class="text-muted"
+											></small>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Детальная информация о товаре -->
+						<div class="row mb-4">
+							<div class="col-12">
+								<div class="card">
+									<div class="card-body">
+										<h5 class="card-title mb-4">Детальная информация</h5>
+
+										<div class="row">
+											<div class="col-md-4 mb-3">
+												<div class="text-center">
+													<h6 class="text-muted">Средний рейтинг на WB</h6>
+													<div
+														class="h3 text-warning"
+														id="averageRating"
+													>
+														<span id="ratingStars"></span>
+													</div>
+													<small
+														class="text-muted"
+														id="ratingText"
+													></small>
+												</div>
+											</div>
+
+											<div class="col-md-4 mb-3">
+												<div class="text-center">
+													<h6 class="text-muted">Количество товара</h6>
+													<div
+														class="h3 text-primary"
+														id="totalQuantity"
+													></div>
+													<small class="text-muted">штук в партии</small>
+												</div>
+											</div>
+
+											<div class="col-md-4 mb-3">
+												<div class="text-center">
+													<h6 class="text-muted">Общий вес партии</h6>
+													<div
+														class="h3 text-info"
+														id="totalWeight"
+													></div>
+													<small class="text-muted">кг</small>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Подробный расчет затрат -->
+						<div class="row mb-4">
+							<div class="col-12">
+								<div class="card">
+									<div class="card-body">
+										<h5 class="card-title mb-4">Подробный расчет затрат</h5>
+
+										<div class="row">
+											<div class="col-md-12 mb-3">
+												<div class="card border-info">
+													<div class="card-header bg-info text-white">
+														<h6 class="mb-0">Затраты на закупку</h6>
+													</div>
+													<div class="card-body">
+														<div class="row">
+															<div class="col-md-3 mb-2">
+																<small class="text-muted"
+																	>Стоимость товара (юань):</small
+																>
+																<div
+																	class="fw-bold"
+																	id="costYuan"
+																></div>
+															</div>
+															<div class="col-md-3 mb-2">
+																<small class="text-muted"
+																	>Стоимость доставки (USD):</small
+																>
+																<div
+																	class="fw-bold"
+																	id="shippingCost"
+																></div>
+															</div>
+															<div class="col-md-3 mb-2">
+																<small class="text-muted"
+																	>Общая стоимость (руб):</small
+																>
+																<div
+																	class="fw-bold text-white"
+																	id="totalCostRub"
+																></div>
+															</div>
+															<div class="col-md-3 mb-2">
+																<small class="text-muted"
+																	>Себестоимость за единицу:</small
+																>
+																<div
+																	class="fw-bold text-white"
+																	id="costPerUnit"
+																></div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Расчет прибыли -->
+						<div class="row mb-4">
+							<div class="col-12">
+								<div class="card">
+									<div class="card-body">
+										<h5 class="card-title mb-4">Расчет прибыли</h5>
+
+										<div class="row">
+											<!-- С вашей ценой -->
+											<div class="col-md-6 mb-3">
+												<div class="card border-primary">
+													<div class="card-header bg-primary text-white">
+														<h6 class="mb-0">С вашей ценой</h6>
+													</div>
+													<div class="card-body">
+														<div class="mb-2">
+															<small class="text-muted"
+																>Цена продажи за единицу:</small
+															>
+															<div
+																class="fw-bold"
+																id="yourPrice"
+															></div>
+														</div>
+														<div class="mb-2">
+															<small class="text-muted"
+																>Комиссия WB за единицу:</small
+															>
+															<div
+																class="fw-bold text-warning"
+																id="yourWbCommission"
+															></div>
+														</div>
+														<div class="mb-2">
+															<small class="text-muted"
+																>Логистика за единицу:</small
+															>
+															<div
+																class="fw-bold text-info"
+																id="yourLogistics"
+															></div>
+														</div>
+														<div class="mb-2">
+															<small class="text-muted"
+																>Чистая прибыль за единицу:</small
+															>
+															<div
+																class="fw-bold text-success"
+																id="yourProfit"
+															></div>
+														</div>
+														<hr />
+														<div class="mb-2">
+															<small class="text-muted">Общая выручка:</small>
+															<div
+																class="fw-bold"
+																id="yourTotalRevenue"
+															></div>
+														</div>
+														<div class="mb-2">
+															<small class="text-muted">Общая прибыль:</small>
+															<div
+																class="fw-bold text-success"
+																id="yourTotalProfit"
+															></div>
+														</div>
+														<div class="mb-2">
+															<small class="text-muted">Рентабельность:</small>
+															<div
+																class="fw-bold"
+																id="yourProfitability"
+															></div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<!-- С рекомендуемой ценой -->
+											<div class="col-md-6 mb-3">
+												<div class="card border-success">
+													<div class="card-header bg-success text-white">
+														<h6 class="mb-0">С рекомендуемой ценой</h6>
+													</div>
+													<div class="card-body">
+														<div class="mb-2">
+															<small class="text-muted"
+																>Цена продажи за единицу:</small
+															>
+															<div
+																class="fw-bold"
+																id="recommendedPriceValue"
+															></div>
+														</div>
+														<div class="mb-2">
+															<small class="text-muted"
+																>Комиссия WB за единицу:</small
+															>
+															<div
+																class="fw-bold text-warning"
+																id="recommendedWbCommission"
+															></div>
+														</div>
+														<div class="mb-2">
+															<small class="text-muted"
+																>Логистика за единицу:</small
+															>
+															<div
+																class="fw-bold text-info"
+																id="recommendedLogistics"
+															></div>
+														</div>
+														<div class="mb-2">
+															<small class="text-muted"
+																>Чистая прибыль за единицу:</small
+															>
+															<div
+																class="fw-bold text-success"
+																id="recommendedProfit"
+															></div>
+														</div>
+														<hr />
+														<div class="mb-2">
+															<small class="text-muted">Общая выручка:</small>
+															<div
+																class="fw-bold"
+																id="recommendedTotalRevenue"
+															></div>
+														</div>
+														<div class="mb-2">
+															<small class="text-muted">Общая прибыль:</small>
+															<div
+																class="fw-bold text-success"
+																id="recommendedTotalProfit"
+															></div>
+														</div>
+														<div class="mb-2">
+															<small class="text-muted">Рентабельность:</small>
+															<div
+																class="fw-bold"
+																id="recommendedProfitability"
+															></div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Рекомендации по упаковке -->
+						<div class="row mb-4">
+							<div class="col-12">
+								<div class="card">
+									<div class="card-body">
+										<h5 class="card-title mb-3">Рекомендации по упаковке</h5>
+										<div class="row">
+											<div class="col-md-4">
+												<div class="mb-3">
+													<h6 class="text-primary">Фото для карточки:</h6>
+													<ul
+														class="list-unstyled"
+														id="photoRecommendations"
+													>
+														<!-- Будет заполнено через JavaScript -->
+													</ul>
+												</div>
+											</div>
+											<div class="col-md-4">
+												<div class="mb-3">
+													<h6 class="text-primary">Описание товара:</h6>
+													<ul
+														class="list-unstyled"
+														id="descriptionRecommendations"
+													>
+														<!-- Будет заполнено через JavaScript -->
+													</ul>
+												</div>
+											</div>
+											<div class="col-md-4">
+												<div class="mb-3">
+													<h6 class="text-primary">Общие рекомендации:</h6>
+													<p
+														class="text-muted"
+														id="generalRecommendations"
+													></p>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Кнопки действий -->
+						<div class="row mb-4">
+							<div class="col-12 text-center">
+								<button
+									class="btn btn-primary btn-lg me-3"
+									onclick="newAnalysis()"
+								>
+									Новый анализ
+								</button>
+								<button
+									class="btn btn-outline-primary btn-lg"
+									onclick="saveAnalysis()"
+								>
+									Сохранить анализ
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Нижнее меню -->
+			<div class="bottom-menu">
+				<a
+					href="/"
+					class="bottom-menu-item"
+					data-page="home"
+				>
+					<div class="bottom-menu-icon">🏠</div>
+					<div class="bottom-menu-text">Главная</div>
+				</a>
+				<a
+					href="/tools.html"
+					class="bottom-menu-item"
+					data-page="tools"
+				>
+					<div class="bottom-menu-icon">🛠️</div>
+					<div class="bottom-menu-text">Инструменты</div>
+				</a>
+				<a
+					href="/packaging.html"
+					class="bottom-menu-item"
+					data-page="packaging"
+				>
+					<div class="bottom-menu-icon">📦</div>
+					<div class="bottom-menu-text">Упаковка</div>
+				</a>
+				<a
+					href="/profile.html"
+					class="bottom-menu-item"
+					data-page="profile"
+				>
+					<div class="bottom-menu-icon">👤</div>
+					<div class="bottom-menu-text">Профиль</div>
+				</a>
+			</div>
+		</div>
+
+		<script src="analysis-results.js"></script>
+	</body>
+</html>
