@@ -273,17 +273,24 @@ class TelegramAuth {
 		analysesList.innerHTML = analyses.map(analysis => `
 			<div class="card mb-3">
 				<div class="card-body">
-					<div class="d-flex justify-content-between align-items-start">
-						<div class="flex-grow-1">
-							<h6 class="card-title mb-1">${analysis.productName || 'Анализ товара'}</h6>
-							<p class="card-text text-muted small mb-2">
-								${new Date(analysis.createdAt).toLocaleDateString('ru-RU')}
-							</p>
-							<p class="card-text small">${analysis.summary || 'Анализ завершен'}</p>
+					<div class="d-flex align-items-start">
+						<div class="me-3">
+							<img src="icons/analysis.png" alt="Анализ" class="profile-item-icon">
 						</div>
-						<button class="btn btn-sm btn-outline-primary" onclick="viewAnalysis(${analysis.id})">
-							Просмотр
-						</button>
+						<div class="flex-grow-1">
+							<div class="d-flex justify-content-between align-items-start">
+								<div class="flex-grow-1">
+									<h6 class="card-title mb-1">${analysis.productName || 'Анализ товара'}</h6>
+									<p class="card-text text-muted small mb-2">
+										${new Date(analysis.createdAt).toLocaleDateString('ru-RU')}
+									</p>
+									<p class="card-text small">${analysis.summary || 'Анализ завершен'}</p>
+								</div>
+								<button class="btn btn-sm btn-outline-primary" onclick="viewAnalysis(${analysis.id})">
+									Просмотр
+								</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -306,17 +313,24 @@ class TelegramAuth {
 		reportsList.innerHTML = reports.map(report => `
 			<div class="card mb-3">
 				<div class="card-body">
-					<div class="d-flex justify-content-between align-items-start">
-						<div class="flex-grow-1">
-							<h6 class="card-title mb-1">${report.title || 'Финансовый отчет'}</h6>
-							<p class="card-text text-muted small mb-2">
-								${new Date(report.createdAt).toLocaleDateString('ru-RU')}
-							</p>
-							<p class="card-text small">Общая сумма: ${report.totalAmount || '0'} ₽</p>
+					<div class="d-flex align-items-start">
+						<div class="me-3">
+							<img src="icons/financial-report.png" alt="Отчет" class="profile-item-icon">
 						</div>
-						<button class="btn btn-sm btn-outline-success" onclick="viewReport(${report.id})">
-							Просмотр
-						</button>
+						<div class="flex-grow-1">
+							<div class="d-flex justify-content-between align-items-start">
+								<div class="flex-grow-1">
+									<h6 class="card-title mb-1">${report.title || 'Финансовый отчет'}</h6>
+									<p class="card-text text-muted small mb-2">
+										${new Date(report.createdAt).toLocaleDateString('ru-RU')}
+									</p>
+									<p class="card-text small">Общая сумма: ${report.totalAmount || '0'} ₽</p>
+								</div>
+								<button class="btn btn-sm btn-outline-success" onclick="viewReport(${report.id})">
+									Просмотр
+								</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
