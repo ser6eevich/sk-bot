@@ -17,24 +17,17 @@ export class ExcelController {
 	public async processReport(req: Request, res: Response) {
 		try {
 			// Проверка наличия файла
-			if (!req.files || !req.files.report) {
+			if (!req.file) {
 				return res.status(400).json({ error: 'Пожалуйста, прикрепите файл' });
 			}
 
-			const file = req.files.report as UploadedFile;
-
-			// Проверка типа файла
-			if (!file.name.match(/\.(xlsx|xls)$/i)) {
-				return res.status(400).json({
-					error: 'Пожалуйста, прикрепите файл Excel (.xlsx или .xls)',
-				});
-			}
+			const file = req.file;
 
 			// Логирование для отладки
 			console.log('Processing file:', {
-				name: Buffer.from(file.name).toString('utf8'),
+				originalname: file.originalname,
 				size: file.size,
-				type: file.mimetype,
+				mimetype: file.mimetype,
 			});
 
 			// Парсинг конфигурации
@@ -48,7 +41,7 @@ export class ExcelController {
 			}
 
 			const excelBuffer = await this.excelService.processReport(
-				file.data,
+				file.buffer,
 				config
 			);
 			console.log('Processing completed successfully');
@@ -68,7 +61,7 @@ export class ExcelController {
 					}
 
 					// Сохраняем обработанный файл
-					const fileName = `processed_${Date.now()}_${file.name}`;
+					const fileName = `processed_${Date.now()}_${file.originalname}`;
 					const filePath = path.join(__dirname, '../../data/reports', fileName);
 
 					// Создаем папку для отчетов, если её нет
@@ -81,19 +74,19 @@ export class ExcelController {
 
 					// Получаем обработанные данные для сохранения в JSON
 					const processedData = await this.excelService.getProcessedData(
-						file.data,
+						file.buffer,
 						config
 					);
 
 					// Сохраняем отчет в базу данных
 					await this.dbService.createReport({
 						userId: user.id,
-						title: `Отчет: ${file.name}`,
+						title: `Отчет: ${file.originalname}`,
 						fileName: fileName,
 						filePath: filePath,
 						fileSize: excelBuffer.length,
 						processedData: JSON.stringify(processedData),
-						summary: `Обработанный отчет из файла ${file.name}`,
+						summary: `Обработанный отчет из файла ${file.originalname}`,
 					});
 
 					console.log('[Controller] Отчет сохранен в базу данных');
@@ -130,29 +123,13 @@ export class ExcelController {
 
 	public async getAvailableColumns(req: Request, res: Response) {
 		try {
-			if (!req.files || !req.files.report) {
+			if (!req.file) {
 				return res.status(400).json({ error: 'No file uploaded' });
 			}
 
-			const file = req.files.report as UploadedFile;
-			
-			// Проверяем размер файла
-			if (file.size > 10 * 1024 * 1024) { // 10MB
-				return res.status(400).json({ error: 'File too large. Maximum size is 10MB.' });
-			}
+			const file = req.file;
 
-			// Проверяем тип файла
-			const allowedTypes = [
-				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-				'application/vnd.ms-excel',
-				'application/vnd.ms-excel.sheet.macroEnabled.12'
-			];
-			
-			if (!allowedTypes.includes(file.mimetype)) {
-				return res.status(400).json({ error: 'Invalid file type. Please upload an Excel file (.xlsx, .xls)' });
-			}
-
-			const columns = this.excelService.getAllAvailableColumns(file.data);
+			const columns = this.excelService.getAllAvailableColumns(file.buffer);
 			res.json({ columns });
 		} catch (error) {
 			console.error('Error getting columns:', error);

@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		radio.addEventListener('change', e => {
 			if (e.target.value === 'manual') {
 				manualSettings.classList.remove('d-none');
+				// Загружаем столбцы если файл уже выбран
 				if (fileInput.files[0]) {
 					loadColumns(fileInput.files[0]);
 				}
@@ -23,13 +24,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// Handle file selection
 	fileInput.addEventListener('change', e => {
-		if (e.target.files[0] && document.getElementById('manualProcess').checked) {
-			loadColumns(e.target.files[0]);
+		const file = e.target.files[0];
+		if (file) {
+			// Если выбран ручной режим, сразу загружаем столбцы
+			if (document.getElementById('manualProcess').checked) {
+				loadColumns(file);
+			}
+		} else {
+			// Очищаем столбцы если файл не выбран
+			columnsToKeep.innerHTML = '';
+			columnsToSum.innerHTML = '';
 		}
 	});
 
 	// Load available columns
 	async function loadColumns(file) {
+		// Проверяем что файл действительно выбран
+		if (!file) {
+			console.error('No file provided to loadColumns');
+			columnsToKeep.innerHTML = '<div class="alert alert-warning">Файл не выбран</div>';
+			columnsToSum.innerHTML = '<div class="alert alert-warning">Файл не выбран</div>';
+			return;
+		}
+
 		const formData = new FormData();
 		formData.append('report', file);
 
@@ -38,17 +55,23 @@ document.addEventListener('DOMContentLoaded', () => {
 			columnsToKeep.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Загрузка...</span></div></div>';
 			columnsToSum.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Загрузка...</span></div></div>';
 
+			console.log('Sending file to server:', file.name, file.size, file.type);
+
 			const response = await fetch('/api/excel/columns', {
 				method: 'POST',
 				body: formData,
 			});
 
+			console.log('Response status:', response.status);
+
 			if (!response.ok) {
 				const errorData = await response.json();
+				console.error('Server error:', errorData);
 				throw new Error(errorData.error || 'Failed to get columns');
 			}
 
 			const data = await response.json();
+			console.log('Received columns:', data);
 			
 			if (!data.columns || data.columns.length === 0) {
 				throw new Error('No columns found in the file');
