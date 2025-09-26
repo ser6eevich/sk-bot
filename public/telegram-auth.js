@@ -58,6 +58,11 @@ class TelegramAuth {
 		if (profileElements.avatar && this.user.photo_url) {
 			profileElements.avatar.src = this.user.photo_url;
 			profileElements.avatar.style.display = 'block';
+			// Скрываем дефолтный аватар
+			const defaultAvatar = document.getElementById('defaultAvatar');
+			if (defaultAvatar) {
+				defaultAvatar.style.display = 'none';
+			}
 		}
 
 		// Имя
@@ -76,7 +81,7 @@ class TelegramAuth {
 
 		// ID
 		if (profileElements.id) {
-			profileElements.id.textContent = 'ID: ' + this.user.id;
+			profileElements.id.textContent = 'ID в приложении: ' + this.user.id;
 		}
 	}
 
@@ -180,12 +185,23 @@ class TelegramAuth {
 				const data = await response.json();
 				const stats = data.stats;
 
-				// Обновляем счетчики
+				// Обновляем счетчики в профиле
 				const analysesCount = document.getElementById('analysesCount');
 				const reportsCount = document.getElementById('reportsCount');
 
 				if (analysesCount) analysesCount.textContent = stats.analysesCount || 0;
 				if (reportsCount) reportsCount.textContent = stats.reportsCount || 0;
+
+				// Обновляем счетчики на главной странице
+				const homeAnalysesCount = document.getElementById('homeAnalysesCount');
+				const homeReportsCount = document.getElementById('homeReportsCount');
+
+				if (homeAnalysesCount) homeAnalysesCount.textContent = stats.analysesCount || 0;
+				if (homeReportsCount) homeReportsCount.textContent = stats.reportsCount || 0;
+
+				// Загружаем списки анализов и отчетов
+				await this.loadUserAnalyses();
+				await this.loadUserReports();
 			} else {
 				console.error('Ошибка загрузки статистики:', response.status);
 				// Используем заглушки при ошибке
@@ -205,6 +221,106 @@ class TelegramAuth {
 
 		if (analysesCount) analysesCount.textContent = '0';
 		if (reportsCount) reportsCount.textContent = '0';
+	}
+
+	async loadUserAnalyses() {
+		try {
+			const response = await fetch('/api/telegram/analyses', {
+				headers: {
+					'X-Telegram-Init-Data': this.webApp?.initData || ''
+				}
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				this.displayAnalyses(data.analyses || []);
+			}
+		} catch (error) {
+			console.error('Ошибка загрузки анализов:', error);
+		}
+	}
+
+	async loadUserReports() {
+		try {
+			const response = await fetch('/api/telegram/reports', {
+				headers: {
+					'X-Telegram-Init-Data': this.webApp?.initData || ''
+				}
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				this.displayReports(data.reports || []);
+			}
+		} catch (error) {
+			console.error('Ошибка загрузки отчетов:', error);
+		}
+	}
+
+	displayAnalyses(analyses) {
+		const analysesList = document.getElementById('analysesList');
+		const analysesEmpty = document.getElementById('analysesEmpty');
+
+		if (!analysesList || !analysesEmpty) return;
+
+		if (analyses.length === 0) {
+			analysesList.innerHTML = '';
+			analysesEmpty.style.display = 'block';
+			return;
+		}
+
+		analysesEmpty.style.display = 'none';
+		analysesList.innerHTML = analyses.map(analysis => `
+			<div class="card mb-3">
+				<div class="card-body">
+					<div class="d-flex justify-content-between align-items-start">
+						<div class="flex-grow-1">
+							<h6 class="card-title mb-1">${analysis.productName || 'Анализ товара'}</h6>
+							<p class="card-text text-muted small mb-2">
+								${new Date(analysis.createdAt).toLocaleDateString('ru-RU')}
+							</p>
+							<p class="card-text small">${analysis.summary || 'Анализ завершен'}</p>
+						</div>
+						<button class="btn btn-sm btn-outline-primary" onclick="viewAnalysis(${analysis.id})">
+							Просмотр
+						</button>
+					</div>
+				</div>
+			</div>
+		`).join('');
+	}
+
+	displayReports(reports) {
+		const reportsList = document.getElementById('reportsList');
+		const reportsEmpty = document.getElementById('reportsEmpty');
+
+		if (!reportsList || !reportsEmpty) return;
+
+		if (reports.length === 0) {
+			reportsList.innerHTML = '';
+			reportsEmpty.style.display = 'block';
+			return;
+		}
+
+		reportsEmpty.style.display = 'none';
+		reportsList.innerHTML = reports.map(report => `
+			<div class="card mb-3">
+				<div class="card-body">
+					<div class="d-flex justify-content-between align-items-start">
+						<div class="flex-grow-1">
+							<h6 class="card-title mb-1">${report.title || 'Финансовый отчет'}</h6>
+							<p class="card-text text-muted small mb-2">
+								${new Date(report.createdAt).toLocaleDateString('ru-RU')}
+							</p>
+							<p class="card-text small">Общая сумма: ${report.totalAmount || '0'} ₽</p>
+						</div>
+						<button class="btn btn-sm btn-outline-success" onclick="viewReport(${report.id})">
+							Просмотр
+						</button>
+					</div>
+				</div>
+			</div>
+		`).join('');
 	}
 
 	async registerUser() {

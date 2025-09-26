@@ -35,44 +35,49 @@
 						class="card mb-4"
 						style="display: none"
 					>
-						<div class="card-body text-center">
-							<div class="mb-4">
-								<img
-									id="userAvatar"
-									src=""
-									alt="Аватар"
-									class="rounded-circle"
-									style="
-										width: 80px;
-										height: 80px;
-										object-fit: cover;
-										display: none;
-									"
-								/>
-								<div
-									id="defaultAvatar"
-									class="display-6"
-								>
-									👤
+						<div class="card-body">
+							<div class="d-flex align-items-center mb-4">
+								<div class="me-3">
+									<img
+										id="userAvatar"
+										src=""
+										alt="Аватар"
+										class="rounded-circle"
+										style="
+											width: 80px;
+											height: 80px;
+											object-fit: cover;
+											display: none;
+										"
+									/>
+									<div
+										id="defaultAvatar"
+										class="display-6"
+										style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #71d8e1 0%, #aedde1 100%); border-radius: 50%;"
+									>
+										👤
+									</div>
+								</div>
+								<div class="flex-grow-1">
+									<h4
+										id="userName"
+										class="card-title mb-2"
+									>
+										Пользователь
+									</h4>
+									<p
+										id="userUsername"
+										class="text-muted mb-1"
+									>
+										@username
+									</p>
+									<small
+										id="userId"
+										class="text-muted"
+										>ID в приложении: 123456789</small
+									>
 								</div>
 							</div>
-							<h4
-								id="userName"
-								class="card-title mb-2"
-							>
-								Пользователь
-							</h4>
-							<p
-								id="userUsername"
-								class="text-muted mb-1"
-							>
-								@username
-							</p>
-							<small
-								id="userId"
-								class="text-muted"
-								>ID: 123456789</small
-							>
 						</div>
 					</div>
 
@@ -120,13 +125,7 @@
 								class="d-flex justify-content-between align-items-center mb-3"
 							>
 								<h5 class="card-title mb-0">Мои анализы</h5>
-								<button
-									id="showAllAnalyses"
-									class="btn btn-sm btn-outline-primary"
-									onclick="showAllAnalyses()"
-								>
-									Все анализы
-								</button>
+								<span id="analysesCount" class="badge bg-primary">0</span>
 							</div>
 							<div id="analysesList">
 								<!-- Анализы будут загружены динамически -->
@@ -154,13 +153,7 @@
 								class="d-flex justify-content-between align-items-center mb-3"
 							>
 								<h5 class="card-title mb-0">Мои отчеты</h5>
-								<button
-									id="showAllReports"
-									class="btn btn-sm btn-outline-primary"
-									onclick="showAllReports()"
-								>
-									Все отчеты
-								</button>
+								<span id="reportsCount" class="badge bg-success">0</span>
 							</div>
 							<div id="reportsList">
 								<!-- Отчеты будут загружены динамически -->
@@ -175,14 +168,18 @@
 									>Здесь будут отображаться все ваши отчеты</small
 								>
 							</div>
-							<div class="d-grid gap-2 mt-3">
-								<button
-									class="btn btn-outline-danger"
-									onclick="window.telegramAuth.logout()"
-								>
-									Выйти из аккаунта
-								</button>
-							</div>
+						</div>
+					</div>
+
+					<!-- Кнопка выхода -->
+					<div class="card">
+						<div class="card-body text-center">
+							<button
+								class="btn btn-outline-danger"
+								onclick="window.telegramAuth.logout()"
+							>
+								Выйти из аккаунта
+							</button>
 						</div>
 					</div>
 				</div>
