@@ -51,6 +51,8 @@ export class ExcelController {
 
 			// Сохраняем отчет в базу данных, если пользователь авторизован
 			const { telegramId: userId, saveReport } = req.body;
+			let savedReport = null;
+			
 			if (saveReport === 'true' && userId) {
 				try {
 					// Получаем или создаем пользователя
@@ -82,7 +84,7 @@ export class ExcelController {
 					);
 
 					// Сохраняем отчет в базу данных
-					await this.dbService.createReport({
+					savedReport = await this.dbService.createReport({
 						userId: user.id,
 						title: `Отчет: ${file.originalname}`,
 						fileName: fileName,
@@ -114,26 +116,36 @@ export class ExcelController {
 			const { telegramId, sendToBot } = req.body;
 			if (sendToBot === 'true' && telegramId && this.bot) {
 				try {
-					// Создаем временный файл
-					const tempFileName = `temp_report_${Date.now()}.xlsx`;
-					const tempFilePath = path.join(__dirname, '../../temp', tempFileName);
+					// Используем сохраненный файл, если он есть, иначе создаем временный
+					let fileToSend: string;
 					
-					// Создаем папку temp если её нет
-					const tempDir = path.dirname(tempFilePath);
-					if (!fs.existsSync(tempDir)) {
-						fs.mkdirSync(tempDir, { recursive: true });
+					if (savedReport && savedReport.filePath && fs.existsSync(savedReport.filePath)) {
+						fileToSend = savedReport.filePath;
+					} else {
+						// Создаем временный файл
+						const tempFileName = `temp_report_${Date.now()}.xlsx`;
+						const tempFilePath = path.join(__dirname, '../../temp', tempFileName);
+						
+						// Создаем папку temp если её нет
+						const tempDir = path.dirname(tempFilePath);
+						if (!fs.existsSync(tempDir)) {
+							fs.mkdirSync(tempDir, { recursive: true });
+						}
+						
+						// Сохраняем файл
+						fs.writeFileSync(tempFilePath, excelBuffer);
+						fileToSend = tempFilePath;
 					}
 					
-					// Сохраняем файл
-					fs.writeFileSync(tempFilePath, excelBuffer);
-					
 					// Отправляем файл через бота
-					await this.bot.api.sendDocument(parseInt(telegramId), tempFilePath, {
+					await this.bot.api.sendDocument(parseInt(telegramId), fileToSend, {
 						caption: '📊 Ваш обработанный финансовый отчет готов!'
 					});
 					
-					// Удаляем временный файл
-					fs.unlinkSync(tempFilePath);
+					// Удаляем временный файл только если он был создан
+					if (!savedReport || !savedReport.filePath) {
+						fs.unlinkSync(fileToSend);
+					}
 					
 					console.log('✅ Файл отправлен через бота пользователю', telegramId);
 					

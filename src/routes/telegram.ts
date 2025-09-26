@@ -1,8 +1,18 @@
 import express from 'express';
 import { DatabaseService } from '../services/DatabaseService';
+import { Bot } from 'grammy';
+import fs from 'fs';
 
 const router = express.Router();
 const db = new DatabaseService();
+
+// Функция для получения бота
+function getBot(): Bot | null {
+	if (process.env.BOT_TOKEN) {
+		return new Bot(process.env.BOT_TOKEN);
+	}
+	return null;
+}
 
 // Функция для безопасного парсинга initData
 function parseInitData(initData: string) {
@@ -170,9 +180,27 @@ router.post('/send-report/:reportId', validateTelegramData, async (req, res) => 
 			return res.status(404).json({ error: 'Отчет не найден' });
 		}
 
-		// Здесь должна быть логика отправки файла через бота
-		// Пока что просто возвращаем успех
-		res.json({ success: true, message: 'Отчет отправлен в Telegram' });
+		// Проверяем, что файл существует
+		if (!report.filePath || !fs.existsSync(report.filePath)) {
+			return res.status(404).json({ error: 'Файл отчета не найден' });
+		}
+
+		// Отправляем файл через бота
+		const bot = getBot();
+		if (!bot) {
+			return res.status(500).json({ error: 'Бот не инициализирован' });
+		}
+
+		try {
+			await bot.api.sendDocument(telegramId, report.filePath, {
+				caption: '📊 Ваш сохраненный финансовый отчет'
+			});
+			
+			res.json({ success: true, message: 'Отчет отправлен в Telegram' });
+		} catch (botError) {
+			console.error('Ошибка отправки через бота:', botError);
+			res.status(500).json({ error: 'Ошибка отправки через бота' });
+		}
 	} catch (error) {
 		console.error('Ошибка отправки отчета:', error);
 		res.status(500).json({ error: 'Внутренняя ошибка сервера' });
