@@ -4,14 +4,17 @@ import { ExcelService, ColumnConfig } from '../services/ExcelService';
 import { DatabaseService } from '../services/DatabaseService';
 import path from 'path';
 import fs from 'fs';
+import { Bot } from 'grammy';
 
 export class ExcelController {
 	private excelService: ExcelService;
 	private dbService: DatabaseService;
+	private bot: Bot | null;
 
-	constructor() {
+	constructor(bot?: Bot) {
 		this.excelService = new ExcelService();
 		this.dbService = new DatabaseService();
+		this.bot = bot || null;
 	}
 
 	public async processReport(req: Request, res: Response) {
@@ -47,16 +50,16 @@ export class ExcelController {
 			console.log('Processing completed successfully');
 
 			// Сохраняем отчет в базу данных, если пользователь авторизован
-			const { telegramId, saveReport } = req.body;
-			if (saveReport === 'true' && telegramId) {
+			const { telegramId: userId, saveReport } = req.body;
+			if (saveReport === 'true' && userId) {
 				try {
 					// Получаем или создаем пользователя
 					let user = await this.dbService.getUserByTelegramId(
-						parseInt(telegramId)
+						parseInt(userId)
 					);
 					if (!user) {
 						user = await this.dbService.createUser({
-							telegramId: parseInt(telegramId),
+							telegramId: parseInt(userId),
 						});
 					}
 
@@ -107,7 +110,47 @@ export class ExcelController {
 			);
 			res.setHeader('Content-Length', excelBuffer.length);
 
-			// Send file
+			// Отправляем файл через бота, если он доступен
+			const { telegramId, sendToBot } = req.body;
+			if (sendToBot === 'true' && telegramId && this.bot) {
+				try {
+					// Создаем временный файл
+					const tempFileName = `temp_report_${Date.now()}.xlsx`;
+					const tempFilePath = path.join(__dirname, '../../temp', tempFileName);
+					
+					// Создаем папку temp если её нет
+					const tempDir = path.dirname(tempFilePath);
+					if (!fs.existsSync(tempDir)) {
+						fs.mkdirSync(tempDir, { recursive: true });
+					}
+					
+					// Сохраняем файл
+					fs.writeFileSync(tempFilePath, excelBuffer);
+					
+					// Отправляем файл через бота
+					await this.bot.api.sendDocument(parseInt(telegramId), tempFilePath, {
+						caption: '📊 Ваш обработанный финансовый отчет готов!'
+					});
+					
+					// Удаляем временный файл
+					fs.unlinkSync(tempFilePath);
+					
+					console.log('✅ Файл отправлен через бота пользователю', telegramId);
+					
+					// Отправляем подтверждение в веб-интерфейс
+					res.json({ 
+						success: true, 
+						message: 'Файл отправлен в Telegram!',
+						sentViaBot: true 
+					});
+					return;
+				} catch (botError) {
+					console.error('Ошибка отправки через бота:', botError);
+					// Если не удалось отправить через бота, отправляем файл обычным способом
+				}
+			}
+
+			// Send file (обычная отправка)
 			res.send(excelBuffer);
 		} catch (error) {
 			console.error('Error processing report:', error);

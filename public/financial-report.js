@@ -130,6 +130,20 @@ document.addEventListener('DOMContentLoaded', () => {
 		const formData = new FormData();
 		formData.append('report', fileInput.files[0]);
 
+		// Добавляем данные пользователя для отправки через бота
+		if (window.Telegram && window.Telegram.WebApp) {
+			const user = window.Telegram.WebApp.initDataUnsafe.user;
+			if (user) {
+				formData.append('telegramId', user.id.toString());
+			}
+		}
+
+		// Проверяем, нужно ли отправить через бота
+		const sendToBot = document.getElementById('sendToBot').checked;
+		if (sendToBot) {
+			formData.append('sendToBot', 'true');
+		}
+
 		if (document.getElementById('manualProcess').checked) {
 			const config = {
 				keep: Array.from(columnsToKeep.querySelectorAll('input:checked')).map(
@@ -157,6 +171,15 @@ document.addEventListener('DOMContentLoaded', () => {
 					throw new Error(errorData.error);
 				} else {
 					throw new Error('Ошибка при обработке отчета');
+				}
+			}
+
+			// Проверяем, отправлен ли файл через бота
+			if (contentType && contentType.includes('application/json')) {
+				const result = await response.json();
+				if (result.sentViaBot) {
+					alert('✅ Файл отправлен в Telegram! Проверьте переписку с ботом.');
+					return;
 				}
 			}
 

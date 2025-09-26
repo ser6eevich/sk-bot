@@ -1,9 +1,17 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { ExcelController } from '../controllers/ExcelController';
+import { Bot } from 'grammy';
 
 const router = Router();
-const controller = new ExcelController();
+
+// Получаем бота из глобального контекста или создаем новый
+let bot: Bot | null = null;
+if (process.env.BOT_TOKEN) {
+	bot = new Bot(process.env.BOT_TOKEN);
+}
+
+const controller = new ExcelController(bot || undefined);
 
 // Настройка multer для загрузки файлов
 const upload = multer({
