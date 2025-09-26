@@ -44,7 +44,21 @@ app.use((req, res, next) => {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-	res.json({ status: 'ok', timestamp: new Date().toISOString() });
+	res.json({ 
+		status: 'ok', 
+		timestamp: new Date().toISOString(),
+		environment: process.env.NODE_ENV || 'development',
+		port: process.env.PORT || 3000
+	});
+});
+
+// Root endpoint
+app.get('/', (req, res) => {
+	res.json({ 
+		message: 'SellKit Mini App API',
+		status: 'running',
+		timestamp: new Date().toISOString()
+	});
 });
 
 // Routes

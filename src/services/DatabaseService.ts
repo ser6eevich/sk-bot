@@ -1,5 +1,6 @@
 import sqlite3 from 'sqlite3';
 import path from 'path';
+import fs from 'fs';
 import { User, CreateUserData } from '../models/User';
 import { Analysis, CreateAnalysisData } from '../models/Analysis';
 import { Report, CreateReportData } from '../models/Report';
@@ -8,25 +9,32 @@ export class DatabaseService {
 	private db: sqlite3.Database;
 
 	constructor() {
-		const dbPath = path.join(__dirname, '../../data/database.sqlite');
+		// Создаем папку data если её нет
+		const dataDir = path.join(__dirname, '../../data');
+		if (!fs.existsSync(dataDir)) {
+			fs.mkdirSync(dataDir, { recursive: true });
+		}
+		
+		const dbPath = path.join(dataDir, 'database.sqlite');
 		this.db = new sqlite3.Database(dbPath);
 		this.initializeDatabase();
 	}
 
 	private initializeDatabase(): void {
-		// Создаем таблицу пользователей
-		this.db.run(`
-			CREATE TABLE IF NOT EXISTS users (
-				id INTEGER PRIMARY KEY AUTOINCREMENT,
-				telegramId INTEGER UNIQUE NOT NULL,
-				username TEXT,
-				firstName TEXT,
-				lastName TEXT,
-				avatarUrl TEXT,
-				createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-				updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-			)
-		`);
+		try {
+			// Создаем таблицу пользователей
+			this.db.run(`
+				CREATE TABLE IF NOT EXISTS users (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					telegramId INTEGER UNIQUE NOT NULL,
+					username TEXT,
+					firstName TEXT,
+					lastName TEXT,
+					avatarUrl TEXT,
+					createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+					updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+				)
+			`);
 
 		// Создаем таблицу анализов
 		this.db.run(`
@@ -67,6 +75,9 @@ export class DatabaseService {
 		`);
 
 		console.log('База данных инициализирована');
+		} catch (error) {
+			console.error('Ошибка при инициализации базы данных:', error);
+		}
 	}
 
 	// Методы для работы с пользователями
