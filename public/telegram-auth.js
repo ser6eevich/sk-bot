@@ -30,6 +30,8 @@ class TelegramAuth {
 			if (this.isAuthorized) {
 				// Сохраняем данные пользователя
 				localStorage.setItem('telegramUser', JSON.stringify(this.user));
+				// Регистрируем пользователя на сервере
+				this.registerUser();
 				this.updateProfile();
 				this.showAuthorizedContent();
 			} else {
@@ -129,40 +131,102 @@ class TelegramAuth {
 	}
 
 	showTestMode() {
-		// Для тестирования вне Telegram
-		console.log('Тестовый режим: Telegram Web App не доступен');
+		// Для тестирования вне Telegram - показываем сообщение
+		console.log('Telegram Web App не доступен - запуск в обычном браузере');
+		
+		// Показываем сообщение о том, что нужно открыть в Telegram
+		const authPrompt = document.getElementById('authPrompt');
+		if (authPrompt) {
+			authPrompt.innerHTML = `
+				<div class="card-body text-center">
+					<div class="mb-4">
+						<div class="display-6">📱</div>
+					</div>
+					<h4 class="card-title mb-3">Откройте в Telegram</h4>
+					<p class="text-muted mb-4">
+						Этот Mini App предназначен для запуска в Telegram. 
+						Откройте бота в Telegram для полного доступа к функциям.
+					</p>
+					<div class="alert alert-info">
+						<strong>Для тестирования:</strong> Откройте бота в Telegram и нажмите кнопку "Профиль"
+					</div>
+				</div>
+			`;
+			authPrompt.style.display = 'block';
+		}
 
-		// Создаем тестового пользователя
-		this.user = {
-			id: 123456789,
-			first_name: 'Тестовый',
-			last_name: 'Пользователь',
-			username: 'test_user',
-			photo_url: 'https://via.placeholder.com/100x100/3E1659/ffffff?text=T',
-		};
-		this.isAuthorized = true;
+		// Скрываем авторизованный контент
+		const authorizedContent = document.getElementById('authorizedContent');
+		if (authorizedContent) {
+			authorizedContent.style.display = 'none';
+		}
 
-		// Сохраняем тестового пользователя
-		localStorage.setItem('telegramUser', JSON.stringify(this.user));
-
-		this.updateProfile();
-		this.showAuthorizedContent();
+		// Скрываем пользовательский контент
+		this.hideUserContent();
 	}
 
-	updateUserStats() {
-		// Здесь можно загрузить статистику пользователя с сервера
-		// Пока используем заглушки
-		const stats = {
-			analyses: 0,
-			reports: 0,
-		};
+	async updateUserStats() {
+		if (!this.user) return;
 
-		// Обновляем счетчики
+		try {
+			// Загружаем статистику с сервера
+			const response = await fetch('/api/telegram/stats', {
+				headers: {
+					'X-Telegram-Init-Data': this.webApp?.initData || ''
+				}
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				const stats = data.stats;
+
+				// Обновляем счетчики
+				const analysesCount = document.getElementById('analysesCount');
+				const reportsCount = document.getElementById('reportsCount');
+
+				if (analysesCount) analysesCount.textContent = stats.analysesCount || 0;
+				if (reportsCount) reportsCount.textContent = stats.reportsCount || 0;
+			} else {
+				console.error('Ошибка загрузки статистики:', response.status);
+				// Используем заглушки при ошибке
+				this.showDefaultStats();
+			}
+		} catch (error) {
+			console.error('Ошибка при загрузке статистики:', error);
+			// Используем заглушки при ошибке
+			this.showDefaultStats();
+		}
+	}
+
+	showDefaultStats() {
+		// Показываем заглушки при ошибке загрузки
 		const analysesCount = document.getElementById('analysesCount');
 		const reportsCount = document.getElementById('reportsCount');
 
-		if (analysesCount) analysesCount.textContent = stats.analyses;
-		if (reportsCount) reportsCount.textContent = stats.reports;
+		if (analysesCount) analysesCount.textContent = '0';
+		if (reportsCount) reportsCount.textContent = '0';
+	}
+
+	async registerUser() {
+		if (!this.user || !this.webApp) return;
+
+		try {
+			// Регистрируем пользователя на сервере
+			const response = await fetch('/api/telegram/user', {
+				headers: {
+					'X-Telegram-Init-Data': this.webApp.initData
+				}
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				console.log('✅ Пользователь зарегистрирован:', data.user);
+			} else {
+				console.error('❌ Ошибка регистрации пользователя:', response.status);
+			}
+		} catch (error) {
+			console.error('❌ Ошибка при регистрации пользователя:', error);
+		}
 	}
 
 	// Метод для выхода (если нужен)
