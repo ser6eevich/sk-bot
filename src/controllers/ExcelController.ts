@@ -114,6 +114,8 @@ export class ExcelController {
 
 			// Отправляем файл через бота, если он доступен
 			const { telegramId, sendToBot } = req.body;
+			console.log('Bot sending check:', { sendToBot, telegramId, hasBot: !!this.bot });
+			
 			if (sendToBot === 'true' && telegramId && this.bot) {
 				try {
 					// Используем сохраненный файл, если он есть, иначе создаем временный
@@ -121,6 +123,7 @@ export class ExcelController {
 					
 					if (savedReport && savedReport.filePath && fs.existsSync(savedReport.filePath)) {
 						fileToSend = savedReport.filePath;
+						console.log('Using saved file:', fileToSend);
 					} else {
 						// Создаем временный файл
 						const tempFileName = `temp_report_${Date.now()}.xlsx`;
@@ -135,7 +138,10 @@ export class ExcelController {
 						// Сохраняем файл
 						fs.writeFileSync(tempFilePath, excelBuffer);
 						fileToSend = tempFilePath;
+						console.log('Using temp file:', fileToSend);
 					}
+					
+					console.log('Sending document to Telegram user:', telegramId);
 					
 					// Отправляем файл через бота
 					await this.bot.api.sendDocument(parseInt(telegramId), fileToSend, {
@@ -160,6 +166,12 @@ export class ExcelController {
 					console.error('Ошибка отправки через бота:', botError);
 					// Если не удалось отправить через бота, отправляем файл обычным способом
 				}
+			} else {
+				console.log('Bot sending conditions not met:', { 
+					sendToBot, 
+					telegramId, 
+					hasBot: !!this.bot 
+				});
 			}
 
 			// Send file (обычная отправка)

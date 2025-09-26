@@ -133,11 +133,21 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Добавляем данные пользователя для автоматической отправки через бота
 		if (window.Telegram && window.Telegram.WebApp) {
 			const user = window.Telegram.WebApp.initDataUnsafe.user;
+			console.log('Telegram user data:', user);
 			if (user) {
 				formData.append('telegramId', user.id.toString());
 				formData.append('sendToBot', 'true');
 				formData.append('saveReport', 'true');
+				console.log('Added Telegram data to form:', {
+					telegramId: user.id,
+					sendToBot: 'true',
+					saveReport: 'true'
+				});
+			} else {
+				console.log('No Telegram user data found');
 			}
+		} else {
+			console.log('Telegram WebApp not available');
 		}
 
 		if (document.getElementById('manualProcess').checked) {

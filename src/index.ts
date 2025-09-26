@@ -18,8 +18,10 @@ let bot: Bot | null = null;
 if (process.env.BOT_TOKEN) {
 	bot = new Bot(process.env.BOT_TOKEN);
 	console.log('✅ Telegram бот инициализирован');
+	console.log('Bot token length:', process.env.BOT_TOKEN.length);
 } else {
 	console.log('⚠️ BOT_TOKEN не найден, бот не запущен');
+	console.log('Available env vars:', Object.keys(process.env).filter(key => key.includes('BOT')));
 }
 
 // Initialize express app for web interface

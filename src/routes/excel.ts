@@ -9,6 +9,9 @@ const router = Router();
 let bot: Bot | null = null;
 if (process.env.BOT_TOKEN) {
 	bot = new Bot(process.env.BOT_TOKEN);
+	console.log('✅ Bot initialized in excel routes');
+} else {
+	console.log('⚠️ BOT_TOKEN not found in excel routes');
 }
 
 const controller = new ExcelController(bot || undefined);
