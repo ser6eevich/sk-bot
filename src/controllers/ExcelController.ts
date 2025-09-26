@@ -135,11 +135,29 @@ export class ExcelController {
 			}
 
 			const file = req.files.report as UploadedFile;
-			const columns = await this.excelService.getAllAvailableColumns(file.data);
+			
+			// Проверяем размер файла
+			if (file.size > 10 * 1024 * 1024) { // 10MB
+				return res.status(400).json({ error: 'File too large. Maximum size is 10MB.' });
+			}
+
+			// Проверяем тип файла
+			const allowedTypes = [
+				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+				'application/vnd.ms-excel',
+				'application/vnd.ms-excel.sheet.macroEnabled.12'
+			];
+			
+			if (!allowedTypes.includes(file.mimetype)) {
+				return res.status(400).json({ error: 'Invalid file type. Please upload an Excel file (.xlsx, .xls)' });
+			}
+
+			const columns = this.excelService.getAllAvailableColumns(file.data);
 			res.json({ columns });
 		} catch (error) {
 			console.error('Error getting columns:', error);
-			res.status(500).json({ error: 'Failed to get columns' });
+			const errorMessage = error instanceof Error ? error.message : 'Failed to get columns';
+			res.status(500).json({ error: errorMessage });
 		}
 	}
 }

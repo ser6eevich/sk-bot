@@ -34,18 +34,31 @@ document.addEventListener('DOMContentLoaded', () => {
 		formData.append('report', file);
 
 		try {
+			// Показываем индикатор загрузки
+			columnsToKeep.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Загрузка...</span></div></div>';
+			columnsToSum.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Загрузка...</span></div></div>';
+
 			const response = await fetch('/api/excel/columns', {
 				method: 'POST',
 				body: formData,
 			});
 
-			if (!response.ok) throw new Error('Failed to get columns');
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || 'Failed to get columns');
+			}
 
 			const data = await response.json();
+			
+			if (!data.columns || data.columns.length === 0) {
+				throw new Error('No columns found in the file');
+			}
+
 			displayColumnOptions(data.columns);
 		} catch (error) {
 			console.error('Error loading columns:', error);
-			alert('Ошибка при загрузке столбцов');
+			columnsToKeep.innerHTML = `<div class="alert alert-danger">Ошибка: ${error.message}</div>`;
+			columnsToSum.innerHTML = `<div class="alert alert-danger">Ошибка: ${error.message}</div>`;
 		}
 	}
 

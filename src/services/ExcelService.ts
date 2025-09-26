@@ -210,18 +210,39 @@ export class ExcelService {
 	}
 
 	public getAllAvailableColumns(file: Buffer): string[] {
-		const workbook = xlsx.read(file);
-		const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-		const jsonData = xlsx.utils.sheet_to_json(worksheet) as Record<
-			string,
-			any
-		>[];
+		try {
+			const workbook = xlsx.read(file);
+			
+			if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+				throw new Error('No sheets found in the file');
+			}
 
-		if (jsonData.length === 0) {
-			return [];
+			const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+			
+			if (!worksheet) {
+				throw new Error('First sheet is empty or corrupted');
+			}
+
+			const jsonData = xlsx.utils.sheet_to_json(worksheet) as Record<
+				string,
+				any
+			>[];
+
+			if (jsonData.length === 0) {
+				throw new Error('No data found in the first sheet');
+			}
+
+			const columns = Object.keys(jsonData[0]);
+			
+			if (columns.length === 0) {
+				throw new Error('No columns found in the data');
+			}
+
+			return columns;
+		} catch (error) {
+			console.error('Error parsing Excel file:', error);
+			throw new Error(`Failed to parse Excel file: ${error instanceof Error ? error.message : 'Unknown error'}`);
 		}
-
-		return Object.keys(jsonData[0]);
 	}
 
 	public async getProcessedData(
