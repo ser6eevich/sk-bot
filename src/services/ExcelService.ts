@@ -49,25 +49,47 @@ export class ExcelService {
 		// Проверяем наличие всех необходимых столбцов
 		const availableColumns = Object.keys(jsonData[0] || {});
 		
-		// Проверяем наличие хотя бы нескольких ключевых столбцов
-		const keyColumns = [
-			'К перечислению Продавцу за реализованный Товар',
-			'Цена розничная',
-			'Кол-во',
-			'Дата продажи'
+		// Проверяем наличие финансовых столбцов (более гибкая проверка)
+		const financialKeywords = [
+			'перечислению', 'продавцу', 'цена', 'розничная', 'кол-во', 'количество',
+			'дата', 'продажи', 'сумма', 'итого', 'скидка', 'доставка', 'возврат',
+			'реализован', 'товар', 'покупатель', 'вайлдберриз', 'wildberries'
 		];
 		
-		const foundKeyColumns = keyColumns.filter(col => availableColumns.includes(col));
+		const foundFinancialColumns = availableColumns.filter(col => 
+			financialKeywords.some(keyword => 
+				col.toLowerCase().includes(keyword.toLowerCase())
+			)
+		);
 		
-		if (foundKeyColumns.length < 2) {
-			throw new Error('Файл не содержит необходимых столбцов для финансового отчета. Убедитесь, что это отчет от Wildberries.');
+		// Проверяем, что есть хотя бы 3 столбца с финансовой информацией
+		// Или пропускаем проверку, если в режиме разработки
+		if (foundFinancialColumns.length < 3 && process.env.NODE_ENV !== 'development') {
+			console.log('Найденные столбцы:', availableColumns);
+			console.log('Финансовые столбцы:', foundFinancialColumns);
+			throw new Error('Файл не содержит достаточного количества финансовых столбцов. Убедитесь, что это отчет от Wildberries с данными о продажах.');
 		}
+		
+		console.log('✅ Валидация файла пройдена. Найдено финансовых столбцов:', foundFinancialColumns.length);
 
-		const columnsToKeep = config?.keep || ExcelService.DEFAULT_COLUMNS;
-		// В автоматическом режиме всегда включаем DEFAULT_SUM_COLUMNS
+		// Используем доступные столбцы, если стандартные не найдены
+		const defaultColumns = ExcelService.DEFAULT_COLUMNS.filter(col => availableColumns.includes(col));
+		const availableDefaultColumns = defaultColumns.length > 0 ? defaultColumns : availableColumns.slice(0, 10);
+		
+		const columnsToKeep = config?.keep || availableDefaultColumns;
+		
+		// Находим столбцы для суммирования среди доступных
+		const defaultSumColumns = ExcelService.DEFAULT_SUM_COLUMNS.filter(col => availableColumns.includes(col));
+		const availableSumColumns = defaultSumColumns.length > 0 ? defaultSumColumns : 
+			availableColumns.filter(col => 
+				col.toLowerCase().includes('сумма') || 
+				col.toLowerCase().includes('итого') || 
+				col.toLowerCase().includes('перечислению')
+			);
+		
 		const columnsToSum = config?.sum
-			? [...new Set([...config.sum, ...ExcelService.DEFAULT_SUM_COLUMNS])]
-			: ExcelService.DEFAULT_SUM_COLUMNS;
+			? [...new Set([...config.sum, ...availableSumColumns])]
+			: availableSumColumns;
 
 		// Filter columns
 		const filteredData = jsonData.map(row => {
