@@ -11,16 +11,16 @@ document.addEventListener('DOMContentLoaded', function () {
 		if (userData) {
 			console.log('👤 Пользователь:', userData);
 
-			// Показываем приветствие
-			const welcomeMessage = document.createElement('div');
-			welcomeMessage.className = 'alert alert-info';
-			welcomeMessage.innerHTML = `
-                <h5>👋 Привет, ${userData.firstName || 'Пользователь'}!</h5>
-                <p>Добро пожаловать в SellKit - ваш помощник для продаж на Wildberries</p>
-            `;
-			document
-				.querySelector('.container')
-				.insertBefore(welcomeMessage, document.querySelector('.row'));
+		// Показываем приветствие
+		const userGreeting = document.getElementById('userGreeting');
+		const userGreetingName = document.getElementById('userGreetingName');
+		if (userGreeting && userGreetingName) {
+			userGreetingName.textContent = userData.firstName || 'Пользователь';
+			userGreeting.style.display = 'block';
+		}
+
+		// Показываем статистику пользователя
+		showUserStats();
 		}
 
 		// Настраиваем кнопку "Назад"
@@ -92,5 +92,41 @@ function setupCardHandlers() {
 
 			window.location.href = 'china-calculator.html';
 		});
+	}
+}
+
+// Функция для показа статистики пользователя на главной странице
+async function showUserStats() {
+	if (!window.TelegramWebApp.isRunningInTelegram()) return;
+
+	try {
+		// Загружаем статистику с сервера
+		const response = await fetch('/api/telegram/stats', {
+			headers: {
+				'X-Telegram-Init-Data': window.TelegramWebApp.webApp?.initData || ''
+			}
+		});
+
+		if (response.ok) {
+			const data = await response.json();
+			const stats = data.stats;
+
+			// Показываем блок статистики
+			const userStats = document.getElementById('userStats');
+			if (userStats) {
+				userStats.style.display = 'block';
+			}
+
+			// Обновляем счетчики
+			const analysesCount = document.getElementById('homeAnalysesCount');
+			const reportsCount = document.getElementById('homeReportsCount');
+			const savingsCount = document.getElementById('homeSavingsCount');
+
+			if (analysesCount) analysesCount.textContent = stats.analysesCount || 0;
+			if (reportsCount) reportsCount.textContent = stats.reportsCount || 0;
+			if (savingsCount) savingsCount.textContent = '0₽'; // Пока заглушка
+		}
+	} catch (error) {
+		console.error('Ошибка при загрузке статистики:', error);
 	}
 }

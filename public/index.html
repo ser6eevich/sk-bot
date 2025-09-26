@@ -19,36 +19,139 @@
 		/>
 	</head>
 	<body>
-		<div class="container mt-4">
-			<h1>SellKit</h1>
-			<div class="row mt-4">
-				<div class="col-md-6 mb-3">
-					<div class="card">
-						<div class="card-body">
-							<h5 class="card-title">Финансовый отчет</h5>
-							<p class="card-text">Обработка и анализ финансовых отчетов WB</p>
-							<a
-								href="financial-report.html"
-								class="btn btn-primary"
-								>Открыть</a
-							>
-						</div>
+		<!-- Приветственное сообщение для авторизованных пользователей -->
+		<div id="userGreeting" class="container mt-4" style="display: none;">
+			<div class="alert alert-info border-0" style="background: linear-gradient(135deg, rgba(113, 216, 225, 0.2) 0%, rgba(174, 221, 225, 0.1) 100%); border: 1px solid rgba(113, 216, 225, 0.3);">
+				<div class="d-flex align-items-center">
+					<div class="me-3">
+						<div class="display-6">👋</div>
+					</div>
+					<div>
+						<h5 class="mb-1">Добро пожаловать, <span id="userGreetingName">Пользователь</span>!</h5>
+						<p class="mb-0 text-muted">Используйте нижнее меню для навигации по приложению</p>
 					</div>
 				</div>
-				<div class="col-md-6 mb-3">
-					<div class="card">
+			</div>
+		</div>
+
+		<!-- Главная приветственная страница -->
+		<div class="container mt-4">
+			<!-- Заголовок и описание -->
+			<div class="text-center mb-5">
+				<div class="display-1 mb-3">🚀</div>
+				<h1 class="display-4 fw-bold mb-3">SellKit</h1>
+				<p class="lead text-muted mb-4">Ваш персональный помощник для успешных продаж на Wildberries</p>
+			</div>
+
+			<!-- Основные возможности -->
+			<div class="row justify-content-center">
+				<div class="col-lg-8">
+					<div class="card mb-4">
+						<div class="card-body text-center">
+							<div class="row g-4">
+								<div class="col-md-4">
+									<div class="feature-item">
+										<div class="display-4 mb-3">📊</div>
+										<h5 class="fw-bold">Анализ товаров</h5>
+										<p class="text-muted small">AI-анализ изображений с рекомендациями по ценообразованию</p>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="feature-item">
+										<div class="display-4 mb-3">🧮</div>
+										<h5 class="fw-bold">Калькулятор</h5>
+										<p class="text-muted small">Расчет стоимости заказов из Китая с учетом всех расходов</p>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="feature-item">
+										<div class="display-4 mb-3">📈</div>
+										<h5 class="fw-bold">Отчеты</h5>
+										<p class="text-muted small">Обработка и анализ финансовых отчетов с Wildberries</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Статистика (если пользователь авторизован) -->
+					<div id="userStats" class="card mb-4" style="display: none;">
 						<div class="card-body">
-							<h5 class="card-title">Калькулятор заказа из Китая</h5>
-							<p class="card-text">Расчет стоимости и анализ рынка</p>
-							<a
-								href="china-calculator.html"
-								class="btn btn-primary"
-								>Открыть</a
-							>
+							<h5 class="card-title text-center mb-4">Ваша статистика</h5>
+							<div class="row g-3">
+								<div class="col-4">
+									<div class="text-center">
+										<div id="homeAnalysesCount" class="display-6 text-primary">0</div>
+										<small class="text-muted">Анализов</small>
+									</div>
+								</div>
+								<div class="col-4">
+									<div class="text-center">
+										<div id="homeReportsCount" class="display-6 text-success">0</div>
+										<small class="text-muted">Отчетов</small>
+									</div>
+								</div>
+								<div class="col-4">
+									<div class="text-center">
+										<div id="homeSavingsCount" class="display-6 text-warning">0₽</div>
+										<small class="text-muted">Сэкономлено</small>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Инструкция по использованию -->
+					<div class="card">
+						<div class="card-body text-center">
+							<h5 class="card-title mb-3">Как начать работу?</h5>
+							<div class="row g-3">
+								<div class="col-md-4">
+									<div class="step-item">
+										<div class="step-number">1</div>
+										<h6>Выберите инструмент</h6>
+										<p class="text-muted small">Используйте нижнее меню для навигации</p>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="step-item">
+										<div class="step-number">2</div>
+										<h6>Загрузите данные</h6>
+										<p class="text-muted small">Фото товара или Excel отчет</p>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="step-item">
+										<div class="step-number">3</div>
+										<h6>Получите результат</h6>
+										<p class="text-muted small">Анализ и рекомендации</p>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
+		</div>
+
+		<!-- Нижнее меню -->
+		<div class="bottom-menu">
+			<a href="/" class="bottom-menu-item active" data-page="home">
+				<div class="bottom-menu-icon">🏠</div>
+				<div class="bottom-menu-text">Главная</div>
+			</a>
+			<a href="/tools.html" class="bottom-menu-item" data-page="tools">
+				<div class="bottom-menu-icon">🛠️</div>
+				<div class="bottom-menu-text">Инструменты</div>
+			</a>
+			<a href="/packaging.html" class="bottom-menu-item" data-page="packaging">
+				<div class="bottom-menu-icon">📦</div>
+				<div class="bottom-menu-text">Упаковка</div>
+			</a>
+			<a href="/profile.html" class="bottom-menu-item" data-page="profile">
+				<div class="bottom-menu-icon">👤</div>
+				<div class="bottom-menu-text">Профиль</div>
+			</a>
 		</div>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 		<script src="app.js"></script>
