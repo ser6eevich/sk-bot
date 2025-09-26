@@ -1,11 +1,21 @@
 // Простая версия для тестирования Railway
 import express from 'express';
+import { DatabaseService } from './services/DatabaseService';
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
+
+// Инициализация базы данных
+let db: DatabaseService;
+try {
+	db = new DatabaseService();
+	console.log('✅ База данных инициализирована');
+} catch (error) {
+	console.error('❌ Ошибка инициализации БД:', error);
+}
 
 // Health check endpoint
 app.get('/health', (req, res) => {
