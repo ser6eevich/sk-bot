@@ -44,7 +44,7 @@ body {
 }
 
 .card-body {
-	padding: 2rem;
+	padding: 1.25rem;
 }
 
 .card-body p,
@@ -94,11 +94,12 @@ h2 {
 	);
 	border: none;
 	color: #ffffff;
-	border-radius: 12px;
-	padding: 0.875rem 2rem;
+	border-radius: 8px;
+	padding: 0.6rem 1.5rem;
 	font-weight: 600;
+	font-size: 0.9rem;
 	transition: all 0.3s ease;
-	box-shadow: 0 4px 16px rgba(62, 22, 89, 0.3);
+	box-shadow: 0 3px 12px rgba(62, 22, 89, 0.3);
 	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
@@ -143,9 +144,9 @@ h2 {
 	background: #ffffff;
 	border: 1px solid #71d8e1;
 	color: #002c30;
-	border-radius: 12px;
-	padding: 0.875rem 1rem;
-	font-size: 1rem;
+	border-radius: 8px;
+	padding: 0.5rem 0.75rem;
+	font-size: 0.9rem;
 	transition: all 0.3s ease;
 	backdrop-filter: blur(10px);
 }
@@ -153,7 +154,7 @@ h2 {
 .form-control:focus {
 	background: #ffffff;
 	border-color: #105e65;
-	box-shadow: 0 0 0 0.2rem rgba(16, 94, 101, 0.25);
+	box-shadow: 0 0 0 0.15rem rgba(16, 94, 101, 0.25);
 	color: #002c30;
 }
 
@@ -164,9 +165,9 @@ h2 {
 
 .form-label {
 	font-weight: 600;
-	margin-bottom: 0.75rem;
+	margin-bottom: 0.5rem;
 	color: #f0f0f0;
-	font-size: 1.1rem;
+	font-size: 0.95rem;
 	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
@@ -346,13 +347,13 @@ h2 {
 	}
 
 	.btn-primary {
-		padding: 1rem 1.5rem;
-		font-size: 1.1rem;
+		padding: 0.6rem 1.2rem;
+		font-size: 0.9rem;
 	}
 
 	.form-control {
-		padding: 1rem;
-		font-size: 1.1rem;
+		padding: 0.5rem 0.75rem;
+		font-size: 0.9rem;
 	}
 }
 
@@ -748,12 +749,12 @@ body {
 	}
 
 	.card-body {
-		padding: 1rem;
+		padding: 0.75rem;
 	}
 
 	.btn-lg {
-		padding: 0.5rem 1rem;
-		font-size: 0.9rem;
+		padding: 0.4rem 0.8rem;
+		font-size: 0.85rem;
 	}
 
 	.lead {
