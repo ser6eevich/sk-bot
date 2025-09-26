@@ -42,6 +42,11 @@ app.use((req, res, next) => {
 	}
 });
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+	res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Routes
 app.use('/api/excel', excelRoutes);
 app.use('/api/calculator', calculatorRoutes);
@@ -155,15 +160,22 @@ function startHttpsServer() {
 	}
 }
 
-// Запускаем HTTPS сервер
-const httpsServer = startHttpsServer();
-
-// Start HTTP server (для разработки, если HTTPS не работает)
-if (!httpsServer) {
+// На Railway используем только HTTP сервер
+if (process.env.NODE_ENV === 'production') {
+	// В продакшене Railway автоматически обеспечивает HTTPS
 	app.listen(port, () => {
-		console.log(`⚠️  HTTP Server is running on http://localhost:${port}`);
-		console.log(
-			'💡 Для Mini App нужен HTTPS! Создайте сертификаты: node ssl/generate-certs.js'
-		);
+		console.log(`🚀 Server is running on port ${port}`);
+		console.log(`🌐 Mini App URL: ${baseUrl}`);
 	});
+} else {
+	// В разработке пытаемся запустить HTTPS
+	const httpsServer = startHttpsServer();
+	if (!httpsServer) {
+		app.listen(port, () => {
+			console.log(`⚠️  HTTP Server is running on http://localhost:${port}`);
+			console.log(
+				'💡 Для Mini App нужен HTTPS! Создайте сертификаты: node ssl/generate-certs.js'
+			);
+		});
+	}
 }
