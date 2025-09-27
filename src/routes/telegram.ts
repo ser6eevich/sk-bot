@@ -28,6 +28,8 @@ function getBot(): Bot | null {
 
 // Функция для безопасного парсинга initData
 function parseInitData(initData: string) {
+	console.log('[parseInitData] Raw initData:', initData);
+	
 	if (!initData) {
 		throw new Error('Отсутствуют данные авторизации');
 	}
@@ -35,15 +37,16 @@ function parseInitData(initData: string) {
 	try {
 		// Пробуем распарсить как JSON
 		const data = JSON.parse(decodeURIComponent(initData));
-		console.log('Parsed initData:', data);
+		console.log('[parseInitData] Parsed initData:', data);
 		return data;
 	} catch (parseError) {
+		console.log('[parseInitData] JSON parse failed, trying URL params:', parseError);
 		// Если не JSON, пробуем извлечь user_id из строки параметров
 		const urlParams = new URLSearchParams(initData);
 		const userParam = urlParams.get('user');
 		if (userParam) {
 			const userData = JSON.parse(userParam);
-			console.log('Parsed user from URL params:', userData);
+			console.log('[parseInitData] Parsed user from URL params:', userData);
 			return userData;
 		} else {
 			throw new Error('Не удалось извлечь данные пользователя');
@@ -212,25 +215,32 @@ router.get('/analyses', validateTelegramData, async (req, res) => {
 // Получить отчеты пользователя
 router.get('/reports', validateTelegramData, async (req, res) => {
 	try {
+		console.log('[GET /reports] Starting request');
 		const initData = req.headers['x-telegram-init-data'] as string;
+		console.log('[GET /reports] initData length:', initData?.length || 0);
+		
 		const userData = parseInitData(initData);
 		// Извлекаем данные пользователя из разных возможных структур
 		const telegramUser = userData.user || userData;
 		const telegramId = telegramUser.id;
+		console.log('[GET /reports] telegramId:', telegramId);
 
 		// Получаем пользователя
 		const user = await db.getUserByTelegramId(telegramId);
+		console.log('[GET /reports] Found user:', user ? `ID: ${user.id}` : 'null');
+		
 		if (!user) {
+			console.log('[GET /reports] User not found for telegramId:', telegramId);
 			return res.status(404).json({ error: 'Пользователь не найден' });
 		}
 
 		// Получаем отчеты пользователя
 		const reports = await db.getReportsByUserId(user.id);
-		console.log('Found reports for user:', user.id, 'count:', reports.length);
+		console.log('[GET /reports] Found reports for user:', user.id, 'count:', reports.length);
 		
 		res.json({ success: true, reports });
 	} catch (error) {
-		console.error('Ошибка при получении отчетов:', error);
+		console.error('[GET /reports] Ошибка при получении отчетов:', error);
 		res.status(500).json({ error: 'Внутренняя ошибка сервера' });
 	}
 });
