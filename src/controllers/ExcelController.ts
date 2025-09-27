@@ -51,9 +51,11 @@ export class ExcelController {
 
 			// Сохраняем отчет в базу данных, если пользователь авторизован
 			const { telegramId: userId, saveReport } = req.body;
+			console.log('Save report check:', { saveReport, userId, hasUserId: !!userId });
 			let savedReport = null;
 			
-			if (saveReport === 'true' && userId) {
+			// Всегда сохраняем отчет, если есть telegramId
+			if (userId) {
 				try {
 					// Получаем или создаем пользователя
 					let user = await this.dbService.getUserByTelegramId(
@@ -94,7 +96,11 @@ export class ExcelController {
 						summary: `Обработанный отчет из файла ${file.originalname}`,
 					});
 
-					console.log('[Controller] Отчет сохранен в базу данных');
+					console.log('[Controller] Отчет сохранен в базу данных:', {
+						reportId: savedReport.id,
+						userId: user.id,
+						fileName: fileName
+					});
 				} catch (dbError) {
 					console.error('[Controller] Ошибка при сохранении отчета:', dbError);
 					// Не прерываем выполнение, просто логируем ошибку

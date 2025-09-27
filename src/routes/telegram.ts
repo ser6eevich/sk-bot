@@ -182,6 +182,58 @@ router.get('/stats', validateTelegramData, async (req, res) => {
 	}
 });
 
+// Получить анализы пользователя
+router.get('/analyses', validateTelegramData, async (req, res) => {
+	try {
+		const initData = req.headers['x-telegram-init-data'] as string;
+		const userData = parseInitData(initData);
+		// Извлекаем данные пользователя из разных возможных структур
+		const telegramUser = userData.user || userData;
+		const telegramId = telegramUser.id;
+
+		// Получаем пользователя
+		const user = await db.getUserByTelegramId(telegramId);
+		if (!user) {
+			return res.status(404).json({ error: 'Пользователь не найден' });
+		}
+
+		// Получаем анализы пользователя
+		const analyses = await db.getAnalysesByUserId(user.id);
+		console.log('Found analyses for user:', user.id, 'count:', analyses.length);
+		
+		res.json({ success: true, analyses });
+	} catch (error) {
+		console.error('Ошибка при получении анализов:', error);
+		res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+	}
+});
+
+// Получить отчеты пользователя
+router.get('/reports', validateTelegramData, async (req, res) => {
+	try {
+		const initData = req.headers['x-telegram-init-data'] as string;
+		const userData = parseInitData(initData);
+		// Извлекаем данные пользователя из разных возможных структур
+		const telegramUser = userData.user || userData;
+		const telegramId = telegramUser.id;
+
+		// Получаем пользователя
+		const user = await db.getUserByTelegramId(telegramId);
+		if (!user) {
+			return res.status(404).json({ error: 'Пользователь не найден' });
+		}
+
+		// Получаем отчеты пользователя
+		const reports = await db.getReportsByUserId(user.id);
+		console.log('Found reports for user:', user.id, 'count:', reports.length);
+		
+		res.json({ success: true, reports });
+	} catch (error) {
+		console.error('Ошибка при получении отчетов:', error);
+		res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+	}
+});
+
 // Отправить отчет в Telegram
 router.post('/send-report/:reportId', validateTelegramData, async (req, res) => {
 	try {
