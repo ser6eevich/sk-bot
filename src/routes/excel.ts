@@ -14,7 +14,7 @@ if (process.env.BOT_TOKEN) {
 	console.log('⚠️ BOT_TOKEN not found in excel routes');
 }
 
-const controller = new ExcelController(bot || undefined);
+const controller = new ExcelController(bot);
 
 // Настройка multer для загрузки файлов
 const upload = multer({

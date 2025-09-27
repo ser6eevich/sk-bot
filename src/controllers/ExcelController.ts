@@ -11,10 +11,10 @@ export class ExcelController {
 	private dbService: DatabaseService;
 	private bot: Bot | null;
 
-	constructor(bot?: Bot) {
+	constructor(bot: Bot | null) {
 		this.excelService = new ExcelService();
 		this.dbService = new DatabaseService();
-		this.bot = bot || null;
+		this.bot = bot;
 	}
 
 	public async processReport(req: Request, res: Response) {
