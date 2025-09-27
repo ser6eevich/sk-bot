@@ -48,7 +48,11 @@ export class OpenAIAssistantService {
 		try {
 			console.log('[OA] Загружаем файл...');
 			// Создаем временный файл для загрузки
-			const tempFilePath = path.join(__dirname, '../../temp', `temp_image_${Date.now()}.jpg`);
+			const tempDir = path.join(__dirname, '../../temp');
+			if (!fs.existsSync(tempDir)) {
+				fs.mkdirSync(tempDir, { recursive: true });
+			}
+			const tempFilePath = path.join(tempDir, `temp_image_${Date.now()}.jpg`);
 			fs.writeFileSync(tempFilePath, imageBuffer);
 			
 			const file = await openai.files.create({
