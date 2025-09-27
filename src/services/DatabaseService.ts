@@ -294,6 +294,12 @@ export class DatabaseService {
 
 	// Методы для работы с отчетами
 	async createReport(reportData: CreateReportData): Promise<Report> {
+		console.log('[DatabaseService] Creating report:', {
+			userId: reportData.userId,
+			title: reportData.title,
+			fileName: reportData.fileName
+		});
+		
 		return new Promise((resolve, reject) => {
 			const sql = `
 				INSERT INTO reports (userId, title, fileName, filePath, fileSize, processedData, summary)
@@ -312,8 +318,10 @@ export class DatabaseService {
 				],
 				function (err) {
 					if (err) {
+						console.error('[DatabaseService] Error creating report:', err);
 						reject(err);
 					} else {
+						console.log('[DatabaseService] Report created successfully with ID:', this.lastID);
 						resolve({
 							id: this.lastID,
 							userId: reportData.userId,
@@ -337,6 +345,7 @@ export class DatabaseService {
 		limit: number = 10,
 		offset: number = 0
 	): Promise<Report[]> {
+		console.log('[DatabaseService] Getting reports for user:', userId);
 		return new Promise((resolve, reject) => {
 			const sql = `
 				SELECT * FROM reports 
@@ -346,8 +355,10 @@ export class DatabaseService {
 			`;
 			this.db.all(sql, [userId, limit, offset], (err, rows: any[]) => {
 				if (err) {
+					console.error('[DatabaseService] Error getting reports:', err);
 					reject(err);
 				} else {
+					console.log('[DatabaseService] Found reports:', rows.length);
 					resolve(rows);
 				}
 			});

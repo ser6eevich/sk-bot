@@ -52,10 +52,12 @@ export class ExcelController {
 			// Сохраняем отчет в базу данных, если пользователь авторизован
 			const { telegramId: userId, saveReport } = req.body;
 			console.log('Save report check:', { saveReport, userId, hasUserId: !!userId });
+			console.log('All request body keys:', Object.keys(req.body));
 			let savedReport = null;
 			
 			// Всегда сохраняем отчет, если есть telegramId
 			if (userId) {
+				console.log('Attempting to save report for user:', userId);
 				try {
 					// Получаем или создаем пользователя
 					let user = await this.dbService.getUserByTelegramId(
