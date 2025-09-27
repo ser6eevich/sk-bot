@@ -4,7 +4,7 @@ import { ExcelService, ColumnConfig } from '../services/ExcelService';
 import { DatabaseService } from '../services/DatabaseService';
 import path from 'path';
 import fs from 'fs';
-import { Bot } from 'grammy';
+import { Bot, InputFile } from 'grammy';
 
 export class ExcelController {
 	private excelService: ExcelService;
@@ -150,7 +150,9 @@ export class ExcelController {
 					console.log('Sending document to Telegram user:', telegramId);
 					
 					// Отправляем файл через бота
-					await this.bot.api.sendDocument(parseInt(telegramId), fileToSend, {
+					// Читаем файл как Buffer для отправки
+					const fileBuffer = fs.readFileSync(fileToSend);
+					await this.bot.api.sendDocument(parseInt(telegramId), new InputFile(fileBuffer, 'processed_report.xlsx'), {
 						caption: '📊 Ваш обработанный финансовый отчет готов!'
 					});
 					

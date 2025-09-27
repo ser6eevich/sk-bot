@@ -1,6 +1,6 @@
 import express from 'express';
 import { DatabaseService } from '../services/DatabaseService';
-import { Bot } from 'grammy';
+import { Bot, InputFile } from 'grammy';
 import fs from 'fs';
 
 const router = express.Router();
@@ -269,7 +269,9 @@ router.post('/send-report/:reportId', validateTelegramData, async (req, res) => 
 		}
 
 		try {
-			await bot.api.sendDocument(telegramId, report.filePath, {
+			// Читаем файл как Buffer для отправки
+			const fileBuffer = fs.readFileSync(report.filePath);
+			await bot.api.sendDocument(telegramId, new InputFile(fileBuffer, 'financial_report.xlsx'), {
 				caption: '📊 Ваш сохраненный финансовый отчет'
 			});
 			
