@@ -1,4 +1,7 @@
 import OpenAI from 'openai';
+import { Readable } from 'stream';
+import fs from 'fs';
+import path from 'path';
 
 export interface AnalysisResult {
 	description: string;
@@ -44,10 +47,17 @@ export class OpenAIAssistantService {
 
 		try {
 			console.log('[OA] Загружаем файл...');
+			// Создаем временный файл для загрузки
+			const tempFilePath = path.join(__dirname, '../../temp', `temp_image_${Date.now()}.jpg`);
+			fs.writeFileSync(tempFilePath, imageBuffer);
+			
 			const file = await openai.files.create({
-				file: new File([imageBuffer], 'product.jpg', { type: 'image/jpeg' }),
+				file: fs.createReadStream(tempFilePath),
 				purpose: 'assistants',
 			});
+			
+			// Удаляем временный файл
+			fs.unlinkSync(tempFilePath);
 			console.log('[OA] Файл загружен:', file.id);
 
 			console.log('[OA] Создаем thread...');
