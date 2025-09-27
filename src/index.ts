@@ -76,6 +76,9 @@ app.use('/api/image-analysis', imageAnalysisRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/telegram', telegramRoutes);
 
+// Экспортируем бота для использования в других модулях
+(global as any).telegramBot = bot;
+
 // Error handling middleware
 app.use(
 	(

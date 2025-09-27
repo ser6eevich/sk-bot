@@ -8,9 +8,20 @@ const db = new DatabaseService();
 
 // Функция для получения бота
 function getBot(): Bot | null {
+	// Сначала пробуем получить из глобального контекста
+	const globalBot = (global as any).telegramBot;
+	if (globalBot) {
+		console.log('Using global bot instance');
+		return globalBot;
+	}
+	
+	// Если нет глобального бота, создаем новый
 	if (process.env.BOT_TOKEN) {
+		console.log('Creating new bot instance');
 		return new Bot(process.env.BOT_TOKEN);
 	}
+	
+	console.log('No bot available');
 	return null;
 }
 

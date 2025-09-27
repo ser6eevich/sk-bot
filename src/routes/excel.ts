@@ -5,14 +5,9 @@ import { Bot } from 'grammy';
 
 const router = Router();
 
-// Получаем бота из глобального контекста или создаем новый
-let bot: Bot | null = null;
-if (process.env.BOT_TOKEN) {
-	bot = new Bot(process.env.BOT_TOKEN);
-	console.log('✅ Bot initialized in excel routes');
-} else {
-	console.log('⚠️ BOT_TOKEN not found in excel routes');
-}
+// Получаем бота из глобального контекста
+const bot = (global as any).telegramBot || null;
+console.log('Bot from global context:', !!bot);
 
 const controller = new ExcelController(bot);
 
