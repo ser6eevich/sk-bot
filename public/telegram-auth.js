@@ -171,19 +171,29 @@ class TelegramAuth {
 	}
 
 	async updateUserStats() {
-		if (!this.user) return;
+		if (!this.user) {
+			console.log('[updateUserStats] No user, skipping');
+			return;
+		}
 
 		try {
+			console.log('[updateUserStats] Starting updateUserStats');
+			const initData = this.webApp?.initData || '';
+			console.log('[updateUserStats] initData length:', initData.length);
+			
 			// Загружаем статистику с сервера
 			const response = await fetch('/api/telegram/stats', {
 				headers: {
-					'X-Telegram-Init-Data': this.webApp?.initData || ''
+					'X-Telegram-Init-Data': initData
 				}
 			});
+
+			console.log('[updateUserStats] Stats response status:', response.status);
 
 			if (response.ok) {
 				const data = await response.json();
 				const stats = data.stats;
+				console.log('[updateUserStats] User stats loaded:', stats);
 
 				// Обновляем счетчики в профиле
 				const analysesCount = document.getElementById('analysesCount');
@@ -200,15 +210,16 @@ class TelegramAuth {
 				if (homeReportsCount) homeReportsCount.textContent = stats.reportsCount || 0;
 
 				// Загружаем списки анализов и отчетов
+				console.log('[updateUserStats] Loading analyses and reports...');
 				await this.loadUserAnalyses();
 				await this.loadUserReports();
 			} else {
-				console.error('Ошибка загрузки статистики:', response.status);
+				console.error('[updateUserStats] Ошибка загрузки статистики:', response.status);
 				// Используем заглушки при ошибке
 				this.showDefaultStats();
 			}
 		} catch (error) {
-			console.error('Ошибка при загрузке статистики:', error);
+			console.error('[updateUserStats] Ошибка при загрузке статистики:', error);
 			// Используем заглушки при ошибке
 			this.showDefaultStats();
 		}
@@ -242,8 +253,10 @@ class TelegramAuth {
 
 	async loadUserReports() {
 		try {
+			console.log('[loadUserReports] Starting loadUserReports');
 			const initData = this.webApp?.initData || '';
-			console.log('Loading user reports, initData length:', initData.length);
+			console.log('[loadUserReports] initData length:', initData.length);
+			console.log('[loadUserReports] webApp available:', !!this.webApp);
 			
 			const response = await fetch('/api/telegram/reports', {
 				headers: {
@@ -251,18 +264,18 @@ class TelegramAuth {
 				}
 			});
 
-			console.log('Reports response status:', response.status);
+			console.log('[loadUserReports] Response status:', response.status);
 			
 			if (response.ok) {
 				const data = await response.json();
-				console.log('Reports data:', data);
+				console.log('[loadUserReports] Reports data:', data);
 				this.displayReports(data.reports || []);
 			} else {
 				const errorText = await response.text();
-				console.error('Error loading reports:', response.status, errorText);
+				console.error('[loadUserReports] Error loading reports:', response.status, errorText);
 			}
 		} catch (error) {
-			console.error('Ошибка загрузки отчетов:', error);
+			console.error('[loadUserReports] Ошибка загрузки отчетов:', error);
 		}
 	}
 
