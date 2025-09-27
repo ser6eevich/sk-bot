@@ -3,6 +3,12 @@ import { Readable } from 'stream';
 import fs from 'fs';
 import path from 'path';
 
+// Полифилл для File в старых версиях Node.js
+if (!globalThis.File) {
+	const { File } = require('node:buffer');
+	globalThis.File = File;
+}
+
 export interface AnalysisResult {
 	description: string;
 	category: string;
@@ -47,22 +53,14 @@ export class OpenAIAssistantService {
 
 		try {
 			console.log('[OA] Загружаем файл...');
-			// Создаем временный файл для загрузки
-			const tempDir = path.join(__dirname, '../../temp');
-			if (!fs.existsSync(tempDir)) {
-				fs.mkdirSync(tempDir, { recursive: true });
-			}
-			const tempFilePath = path.join(tempDir, `temp_image_${Date.now()}.jpg`);
-			fs.writeFileSync(tempFilePath, imageBuffer);
+			// Создаем File объект из Buffer
+			const file = new File([imageBuffer], 'product.jpg', { type: 'image/jpeg' });
 			
-			const file = await openai.files.create({
-				file: fs.createReadStream(tempFilePath),
+			const uploadedFile = await openai.files.create({
+				file: file,
 				purpose: 'assistants',
 			});
-			
-			// Удаляем временный файл
-			fs.unlinkSync(tempFilePath);
-			console.log('[OA] Файл загружен:', file.id);
+			console.log('[OA] Файл загружен:', uploadedFile.id);
 
 			console.log('[OA] Создаем thread...');
 			const thread = await openai.beta.threads.create();
@@ -78,7 +76,7 @@ export class OpenAIAssistantService {
 					},
 					{
 						type: 'image_file',
-						image_file: { file_id: file.id },
+						image_file: { file_id: uploadedFile.id },
 					},
 				],
 			});
