@@ -16,9 +16,10 @@ function getBot(): Bot | null {
 	}
 	
 	// Если нет глобального бота, создаем новый
-	if (process.env.BOT_TOKEN) {
+	const botToken = process.env.BOT_TOKEN || process.env.bit_token;
+	if (botToken) {
 		console.log('Creating new bot instance');
-		return new Bot(process.env.BOT_TOKEN);
+		return new Bot(botToken);
 	}
 	
 	console.log('No bot available');

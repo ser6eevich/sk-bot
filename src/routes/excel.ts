@@ -9,7 +9,17 @@ const router = Router();
 const bot = (global as any).telegramBot || null;
 console.log('Bot from global context:', !!bot);
 
-const controller = new ExcelController(bot);
+// Если глобального бота нет, создаем новый
+let finalBot = bot;
+if (!bot) {
+	const botToken = process.env.BOT_TOKEN || process.env.bit_token;
+	if (botToken) {
+		finalBot = new Bot(botToken);
+		console.log('Created new bot instance in excel routes');
+	}
+}
+
+const controller = new ExcelController(finalBot);
 
 // Настройка multer для загрузки файлов
 const upload = multer({

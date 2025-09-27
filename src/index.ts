@@ -15,13 +15,14 @@ import telegramRoutes from './routes/telegram';
 
 // Initialize bot (только если есть токен)
 let bot: Bot | null = null;
-if (process.env.BOT_TOKEN) {
-	bot = new Bot(process.env.BOT_TOKEN);
+const botToken = process.env.BOT_TOKEN || process.env.bit_token;
+if (botToken) {
+	bot = new Bot(botToken);
 	console.log('✅ Telegram бот инициализирован');
-	console.log('Bot token length:', process.env.BOT_TOKEN.length);
+	console.log('Bot token length:', botToken.length);
 } else {
 	console.log('⚠️ BOT_TOKEN не найден, бот не запущен');
-	console.log('Available env vars:', Object.keys(process.env).filter(key => key.includes('BOT')));
+	console.log('Available env vars:', Object.keys(process.env).filter(key => key.includes('BOT') || key.includes('bit')));
 }
 
 // Initialize express app for web interface
