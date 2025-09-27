@@ -185,6 +185,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				const result = await response.json();
 				if (result.sentViaBot) {
 					alert('✅ Отчет обработан и отправлен в Telegram! Проверьте переписку с ботом. Отчет также сохранен в вашем профиле.');
+					
+					// Обновляем статистику пользователя
+					if (window.telegramAuth) {
+						window.telegramAuth.updateUserStats();
+					}
 					return;
 				}
 			}

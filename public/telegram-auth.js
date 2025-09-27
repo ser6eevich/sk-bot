@@ -242,15 +242,24 @@ class TelegramAuth {
 
 	async loadUserReports() {
 		try {
+			const initData = this.webApp?.initData || '';
+			console.log('Loading user reports, initData length:', initData.length);
+			
 			const response = await fetch('/api/telegram/reports', {
 				headers: {
-					'X-Telegram-Init-Data': this.webApp?.initData || ''
+					'X-Telegram-Init-Data': initData
 				}
 			});
 
+			console.log('Reports response status:', response.status);
+			
 			if (response.ok) {
 				const data = await response.json();
+				console.log('Reports data:', data);
 				this.displayReports(data.reports || []);
+			} else {
+				const errorText = await response.text();
+				console.error('Error loading reports:', response.status, errorText);
 			}
 		} catch (error) {
 			console.error('Ошибка загрузки отчетов:', error);
@@ -298,11 +307,15 @@ class TelegramAuth {
 	}
 
 	displayReports(reports) {
+		console.log('Displaying reports:', reports.length, 'reports');
 		const reportsList = document.getElementById('reportsList');
 		const reportsEmpty = document.getElementById('reportsEmpty');
 		const showAllBtn = document.getElementById('showAllReportsBtn');
 
-		if (!reportsList || !reportsEmpty) return;
+		if (!reportsList || !reportsEmpty) {
+			console.error('Reports elements not found');
+			return;
+		}
 
 		if (reports.length === 0) {
 			reportsList.innerHTML = '';
