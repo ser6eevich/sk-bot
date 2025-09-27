@@ -86,9 +86,10 @@ export class ExcelController {
 					);
 
 					// Сохраняем отчет в базу данных
+					const currentDate = new Date().toLocaleDateString('ru-RU');
 					savedReport = await this.dbService.createReport({
 						userId: user.id,
-						title: `Отчет: ${file.originalname}`,
+						title: `Сформированный Фин отчет ${currentDate}`,
 						fileName: fileName,
 						filePath: filePath,
 						fileSize: excelBuffer.length,

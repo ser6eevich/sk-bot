@@ -184,11 +184,17 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (contentType && contentType.includes('application/json')) {
 				const result = await response.json();
 				if (result.sentViaBot) {
-					alert('✅ Отчет обработан и отправлен в Telegram! Проверьте переписку с ботом. Отчет также сохранен в вашем профиле.');
+					// Показываем модальное окно успеха
+					const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+					successModal.show();
 					
 					// Обновляем статистику пользователя
 					if (window.telegramAuth) {
 						window.telegramAuth.updateUserStats();
+						// Принудительно обновляем списки отчетов
+						setTimeout(() => {
+							window.telegramAuth.loadUserReports();
+						}, 1000);
 					}
 					return;
 				}
