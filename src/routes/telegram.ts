@@ -22,13 +22,17 @@ function parseInitData(initData: string) {
 	
 	try {
 		// Пробуем распарсить как JSON
-		return JSON.parse(decodeURIComponent(initData));
+		const data = JSON.parse(decodeURIComponent(initData));
+		console.log('Parsed initData:', data);
+		return data;
 	} catch (parseError) {
 		// Если не JSON, пробуем извлечь user_id из строки параметров
 		const urlParams = new URLSearchParams(initData);
 		const userParam = urlParams.get('user');
 		if (userParam) {
-			return JSON.parse(userParam);
+			const userData = JSON.parse(userParam);
+			console.log('Parsed user from URL params:', userData);
+			return userData;
 		} else {
 			throw new Error('Не удалось извлечь данные пользователя');
 		}
@@ -60,11 +64,14 @@ router.get('/user', validateTelegramData, async (req, res) => {
 		const initData = req.headers['x-telegram-init-data'] as string;
 		const userData = parseInitData(initData);
 
-		if (!userData.user) {
+		// Проверяем наличие данных пользователя
+		if (!userData.user && !userData.id) {
 			return res.status(400).json({ error: 'Данные пользователя не найдены' });
 		}
 
-		const telegramId = userData.user.id;
+		// Извлекаем данные пользователя из разных возможных структур
+		const telegramUser = userData.user || userData;
+		const telegramId = telegramUser.id;
 
 		// Ищем пользователя в базе данных
 		let user = await db.getUserByTelegramId(telegramId);
@@ -73,18 +80,18 @@ router.get('/user', validateTelegramData, async (req, res) => {
 			// Создаем нового пользователя
 			user = await db.createUser({
 				telegramId: telegramId,
-				username: userData.user.username,
-				firstName: userData.user.first_name,
-				lastName: userData.user.last_name,
-				avatarUrl: userData.user.photo_url,
+				username: telegramUser.username,
+				firstName: telegramUser.first_name,
+				lastName: telegramUser.last_name,
+				avatarUrl: telegramUser.photo_url,
 			});
 		} else {
 			// Обновляем данные существующего пользователя
 			await db.updateUser(telegramId, {
-				username: userData.user.username,
-				firstName: userData.user.first_name,
-				lastName: userData.user.last_name,
-				avatarUrl: userData.user.photo_url,
+				username: telegramUser.username,
+				firstName: telegramUser.first_name,
+				lastName: telegramUser.last_name,
+				avatarUrl: telegramUser.photo_url,
 			});
 		}
 
@@ -103,7 +110,9 @@ router.post('/data', validateTelegramData, async (req, res) => {
 	try {
 		const initData = req.headers['x-telegram-init-data'] as string;
 		const userData = parseInitData(initData);
-		const telegramId = userData.user.id;
+		// Извлекаем данные пользователя из разных возможных структур
+		const telegramUser = userData.user || userData;
+		const telegramId = telegramUser.id;
 
 		// Получаем пользователя
 		const user = await db.getUserByTelegramId(telegramId);
@@ -145,7 +154,9 @@ router.get('/stats', validateTelegramData, async (req, res) => {
 	try {
 		const initData = req.headers['x-telegram-init-data'] as string;
 		const userData = parseInitData(initData);
-		const telegramId = userData.user.id;
+		// Извлекаем данные пользователя из разных возможных структур
+		const telegramUser = userData.user || userData;
+		const telegramId = telegramUser.id;
 
 		const user = await db.getUserByTelegramId(telegramId);
 		if (!user) {
@@ -165,7 +176,9 @@ router.post('/send-report/:reportId', validateTelegramData, async (req, res) => 
 	try {
 		const initData = req.headers['x-telegram-init-data'] as string;
 		const userData = parseInitData(initData);
-		const telegramId = userData.user.id;
+		// Извлекаем данные пользователя из разных возможных структур
+		const telegramUser = userData.user || userData;
+		const telegramId = telegramUser.id;
 		const reportId = parseInt(req.params.reportId);
 
 		// Получаем пользователя
